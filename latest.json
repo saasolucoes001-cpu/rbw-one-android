@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "packageName": "br.com.rbwone.app",
-  "versionCode": 1,
-  "versionName": "1.0.0",
-  "apkUrl": "https://saasolucoes001-cpu.github.io/rbw-one-android/RBW-One-1.0.0.apk",
-  "sha256": "c5271a3668f0889a1dce05401babac8c486cf30b79baf35d16528140f09626b4",
-  "sizeBytes": 2129707,
+  "versionCode": 2,
+  "versionName": "1.0.1",
+  "apkUrl": "https://saasolucoes001-cpu.github.io/rbw-one-android/RBW-One-1.0.1.apk",
+  "sha256": "cff0fd3a9f44ddd21af4cb3a7607dff667cd435db18e8ce534017f3b30028623",
+  "sizeBytes": 2133803,
   "minSdkVersion": 23
 }

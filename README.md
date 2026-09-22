@@ -4,6 +4,15 @@ Canal independente de distribuição de APKs: https://saasolucoes001-cpu.github.
 
 Não contém o código do aplicativo web, credenciais, chaves de assinatura ou dados dos usuários. O APK abre a versão mobile em https://rbwone.com.br/ e mantém o login e as permissões do serviço.
 
+## Versão 1.0.1
+
+- Correção do despacho para o navegador: intent explícito com `NEW_TASK` e URL do RBW One, evitando relançamentos concorrentes do Android Browser Helper.
+- Busca de atualização limitada a 4,5 segundos, saída “Usar versão atual”, fallback em falhas e proteção contra abertura duplicada.
+- Alternativa de abrir em navegador externo quando o navegador interno não inicia, sem redirecionar de volta ao launcher.
+- Primeiro acesso: solicitação de notificações no Android 13+ e oferta opcional do acesso especial para instalar as próprias atualizações no Android 8+.
+- Recusar, cancelar ou retornar das configurações não impede abrir o app; as perguntas de primeiro acesso não se repetem a cada abertura.
+- Sem alteração do site. Câmera, microfone e localização permanecem sob controle do navegador, com solicitação ao usar os recursos. Não há permissões amplas de armazenamento.
+
 ## Atualizações
 
 O aplicativo consulta `latest.json` ao ser aberto. Se houver versão superior compatível, baixa o instalador, confere tamanho, SHA-256, identificação do pacote, versão e a mesma assinatura do aplicativo instalado. Somente então abre a confirmação de instalação do Android. A indisponibilidade do canal não impede abrir a versão atual.
@@ -18,4 +27,4 @@ O Android comum não permite garantir instalação silenciosa; a confirmação d
 4. Atualizar `latest.json` com `schemaVersion: 1`, `packageName`, `versionCode`, `versionName`, `apkUrl`, `sha256`, `sizeBytes` e `minSdkVersion` correspondentes ao arquivo assinado.
 5. Confirmar a publicação do GitHub Pages e o SHA-256 do download público antes de divulgar.
 
-Não substituir um APK já publicado por outro conteúdo com o mesmo nome. Mudanças apenas no site não exigem nova versão do instalador.
+Não substituir um APK já publicado por outro conteúdo com o mesmo nome. Mudanças apenas no site não exigem nova versão do instalador. Preserve os instaladores antigos para recuperação; não use um `versionCode` inferior ao instalado.
