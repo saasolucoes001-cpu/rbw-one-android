@@ -1,0 +1,56 @@
+plugins { id 'com.android.application' }
+
+def firebaseConfigured = file('google-services.json').exists()
+if (firebaseConfigured) { apply plugin: 'com.google.gms.google-services' }
+else { logger.lifecycle('Firebase pendente: app/google-services.json ausente. O site funciona; push permanece desativado.') }
+
+def signingPath = providers.environmentVariable('RBW_ANDROID_KEYSTORE').orNull
+def signingReady = signingPath && providers.environmentVariable('RBW_ANDROID_KEYSTORE_PASSWORD').isPresent() && providers.environmentVariable('RBW_ANDROID_KEY_ALIAS').isPresent() && providers.environmentVariable('RBW_ANDROID_KEY_PASSWORD').isPresent()
+
+android {
+    namespace 'br.com.rbwone.web'
+    compileSdk 35
+    defaultConfig {
+        applicationId 'br.com.rbwone.web'
+        minSdk 23
+        targetSdk 35
+        versionCode 1
+        versionName '1.0.0'
+        buildConfigField 'boolean', 'FIREBASE_CONFIGURED', firebaseConfigured.toString()
+        buildConfigField 'String', 'NOTIFICATIONS_API', '"https://qirmwsqksvraowcnleqw.supabase.co/functions/v1/notifications-api"'
+        // Public publishable key, identical to the official website. No privileged credential belongs in an APK.
+        buildConfigField 'String', 'PUBLIC_API_KEY', '"sb_publishable_pJc3Fi-ky9fXTOoV3aRAaQ_XzKJZ-r_"'
+    }
+    buildFeatures { buildConfig true }
+    compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17; coreLibraryDesugaringEnabled true }
+    signingConfigs {
+        if (signingReady) {
+            release {
+                storeFile file(signingPath)
+                storePassword providers.environmentVariable('RBW_ANDROID_KEYSTORE_PASSWORD').get()
+                keyAlias providers.environmentVariable('RBW_ANDROID_KEY_ALIAS').get()
+                keyPassword providers.environmentVariable('RBW_ANDROID_KEY_PASSWORD').get()
+            }
+        }
+    }
+    buildTypes {
+        debug { versionNameSuffix '-debug' }
+        release {
+            minifyEnabled false
+            if (signingReady) { signingConfig signingConfigs.release }
+        }
+    }
+    testOptions { unitTests.returnDefaultValues = true }
+    lint { abortOnError true; checkReleaseBuilds true }
+}
+
+dependencies {
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
+    implementation 'androidx.core:core:1.16.0'
+    implementation 'androidx.webkit:webkit:1.14.0'
+    implementation 'androidx.work:work-runtime:2.10.1'
+    implementation platform('com.google.firebase:firebase-bom:34.2.0')
+    implementation 'com.google.firebase:firebase-messaging'
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.json:json:20250517'
+}
