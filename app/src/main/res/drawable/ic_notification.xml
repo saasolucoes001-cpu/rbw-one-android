@@ -1,3 +1,10 @@
-<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="24dp" android:height="24dp" android:viewportWidth="24" android:viewportHeight="24">
-    <path android:fillColor="#FFFFFF" android:pathData="M12,2a6,6 0,0 0,-6,6v5l-2,3v2h16v-2l-2,-3v-5a6,6 0,0 0,-6,-6M9,20a3,3 0,0 0,6,0z" />
+<!-- Monochrome RBW brand mark. Android applies the status-bar contrast tint. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="24dp" android:height="24dp" android:viewportWidth="360" android:viewportHeight="360">
+    <group android:translateX="-75" android:translateY="-65">
+        <path android:fillColor="@android:color/transparent" android:strokeColor="#FFFFFF" android:strokeWidth="10" android:strokeLineCap="round"
+            android:pathData="M105,292 A164,164 0,0 1,355,128 M159,364 A164,164 0,0 0,394,312" />
+        <path android:fillColor="#FFFFFF" android:pathData="M396,157 A16,16 0,1 1,364,157 A16,16 0,1 1,396,157 M149,337 A16,16 0,1 1,117,337 A16,16 0,1 1,149,337 M379,233 A15,15 0,1 1,349,233 A15,15 0,1 1,379,233" />
+        <path android:fillColor="@android:color/transparent" android:strokeColor="#FFFFFF" android:strokeWidth="21" android:strokeLineCap="round" android:strokeLineJoin="round"
+            android:pathData="M152,286 V249 C152,233 163,221 180,221 H194 M225,183 V249 C225,272 238,286 258,286 C276,286 288,273 288,253 V251 C288,233 278,221 264,221 H253 M321,221 V268 C321,287 333,292 345,280 L353,272 C360,266 366,266 373,272 L382,281 C395,293 408,286 408,274 V221" />
+    </group>
 </vector>
