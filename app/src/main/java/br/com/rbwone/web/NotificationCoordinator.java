@@ -58,7 +58,7 @@ public final class NotificationCoordinator {
             JSONObject result = new JSONObject().put("supported", true).put("configured", configured).put("permission", permission()).put("active", active);
             if (!configured) result.put("reason", "config_missing");
             else if (record == null) result.put("reason", "session_missing");
-            else if (!failure.isEmpty()) result.put("reason", "registration_failed");
+            else if (!failure.isEmpty()) result.put("reason", failure);
             else if (!registered) result.put("reason", "token_pending");
             return result;
         } catch (Exception ignored) { return new JSONObject(); }
@@ -87,7 +87,7 @@ public final class NotificationCoordinator {
         return AsyncResult.supplyAsync(() -> {
             try {
                 FirebaseMessaging messaging = FirebaseMessaging.getInstance(); messaging.setAutoInitEnabled(true);
-                String fcm = renewedToken != null ? renewedToken : Tasks.await(messaging.getToken(), 5, TimeUnit.SECONDS);
+                String fcm = renewedToken != null ? renewedToken : Tasks.await(messaging.getToken(), 30, TimeUnit.SECONDS);
                 synchronized (this) { if (generation != requestGeneration) return status(); }
                 JSONObject response = api.request("register_device", new JSONObject().put("installation_id", store.installationId()).put("fcm_token", fcm).put("platform", "android").put("sound_enabled", sound), token);
                 SessionRecord verified = new SessionRecord(token, sound, response.optString("user_id"), response.optString("session_id"), response.optString("session_expires_at"), fcm);
@@ -99,7 +99,9 @@ public final class NotificationCoordinator {
             } catch (Exception error) {
                 synchronized (this) {
                     if (generation != requestGeneration) return status();
-                    failure = "registration_failed";
+                    failure = error instanceof java.net.SocketTimeoutException || error instanceof java.util.concurrent.TimeoutException
+                            ? "registration_timeout" : error instanceof NotificationsApi.ApiException
+                            ? "registration_server_error" : "registration_failed";
                     if (error instanceof NotificationsApi.ApiException && (((NotificationsApi.ApiException) error).status == 401 || ((NotificationsApi.ApiException) error).status == 403)) {
                         generation++; store.clear(); NotificationManagerCompat.from(context).cancelAll();
                     }

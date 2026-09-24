@@ -70,3 +70,7 @@ Fechar a tela ou retirar o app da lista de recentes normalmente permite FCM. “
 - Validar upload, câmera, localização, botão Voltar, links externos e retorno de indisponibilidade de rede nas telas usadas pela organização.
 
 Os testes JVM cobrem origem, rotas, contrato da ponte, validade/identidade da sessão e TTL. A entrega FCM real e políticas do fabricante exigem aparelho com Google Play Services, permissão concedida e um evento autenticado. Compilação e testes unitários, isoladamente, não comprovam a entrega real em segundo plano.
+
+## Correção de registro 1.0.1
+
+Versão 1.0.1 / código 2 mantém o pacote e a assinatura de 1.0.0, permitindo atualização. Conexão/leitura passam de 5 para 15 segundos, token FCM de 5 para 30 segundos. O status diferencia registration_timeout, registration_server_error e registration_failed, sem expor respostas de provedor ou credenciais. O site aguarda até 75 segundos nas ações de registro/permissão. O backend agora aciona o envio após COMMIT; o cron fica para recuperar falhas. Teste em aparelho físico continua necessário.

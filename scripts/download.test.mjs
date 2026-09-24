@@ -39,9 +39,9 @@ async function openPage({ manifest = release, failed = false, offline = false, i
 test('APK payload matches release size, SHA-256 and unique first-party path', async () => {
   const url = new URL(release.apkUrl);
   assert.equal(url.origin, origin);
-  assert.equal(url.pathname, '/rbw-one-android/rbw-one-web-1.0.0.apk');
+  assert.equal(url.pathname, '/rbw-one-android/rbw-one-web-1.0.1.apk');
   assert.equal(release.packageName, 'br.com.rbwone.web');
-  assert.equal(release.versionCode, 1);
+  assert.equal(release.versionCode, 2);
   const apk = await readFile(new URL(url.pathname.split('/').at(-1), root));
   assert.equal(apk.length, release.sizeBytes);
   assert.equal(createHash('sha256').update(apk).digest('hex'), release.sha256);
@@ -65,7 +65,7 @@ test('valid manifest exposes only the new download with integrity and no-store f
   assert.equal(page.elements.download.href, release.apkUrl);
   assert.equal(page.elements.retry.hidden, true);
   assert.match(page.elements.integrity.textContent, new RegExp(release.sha256));
-  assert.match(page.elements.notice.textContent, /separadamente/);
+  assert.equal(page.elements.notice.textContent, release.notice);
   assert.match(page.requests[0].url, /^\.\/web-latest\.json\?t=\d+$/);
   assert.equal(page.requests[0].options.cache, 'no-store');
   assert.equal(page.timer(), null);
@@ -98,7 +98,7 @@ for (const [label, replacement] of [
   ['encoded path', { apkUrl: origin + '/rbw-one-android/%72bw-one-web-1.0.0.apk' }],
   ['query suffix', { apkUrl: release.apkUrl + '?download=1' }],
   ['fragment suffix', { apkUrl: release.apkUrl + '#x' }],
-  ['mismatched filename/version', { versionName: '1.0.1' }],
+  ['mismatched filename/version', { versionName: '9.9.9' }],
   ['invalid hash', { sha256: 'not-a-checksum' }],
   ['invalid size', { sizeBytes: 0 }],
   ['unsupported schema', { schemaVersion: 2 }],

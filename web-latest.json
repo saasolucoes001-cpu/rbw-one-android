@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "packageName": "br.com.rbwone.web",
-  "versionCode": 1,
-  "versionName": "1.0.0",
-  "apkUrl": "https://saasolucoes001-cpu.github.io/rbw-one-android/rbw-one-web-1.0.0.apk",
-  "sha256": "7803818236ecbed7e12d163f02743dc8b6aa9d49d04b83f2b5ca8a38295d9f18",
-  "sizeBytes": 3845090,
+  "versionCode": 2,
+  "versionName": "1.0.1",
+  "apkUrl": "https://saasolucoes001-cpu.github.io/rbw-one-android/rbw-one-web-1.0.1.apk",
+  "sha256": "da3bdec3f07d2bb877928d0837e2645b5d972df96781d9a12cc8d96d0be1c822",
+  "sizeBytes": 3845093,
   "minSdkVersion": 23,
-  "notice": "Novo aplicativo: instala separadamente das versões antigas e requer novo login. Para receber avisos em segundo plano, autorize as notificações pelo sino após entrar."
+  "notice": "Atualização 1.0.1: corrige o tempo de registro de notificações. Atualiza o novo aplicativo 1.0.0, mantendo o login. Após instalar, permita as notificações pelo sino."
 }
