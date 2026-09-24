@@ -61,11 +61,13 @@ public final class MainActivity extends Activity {
     private ValueCallback<Uri[]> fileCallback;
     private MediaPlayer preview;
     private boolean destroyed;
+    private AppUpdater updater;
     private final Consumer<JSONObject> statusListener = status -> runOnUiThread(() -> emit("status", "status", status));
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        updater = new AppUpdater(this);
         coordinator = ((RbwApplication) getApplication()).notifications();
         coordinator.addListener(statusListener);
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
@@ -268,11 +270,14 @@ public final class MainActivity extends Activity {
             else web.loadUrl(RoutePolicy.ORIGIN + route);
         }));
     }
-    @Override protected void onResume() { super.onResume(); if (coordinator != null) { coordinator.emit(); if (askingNotifications) finishNotificationPermission(); } }
+    @Override protected void onStart() { super.onStart(); if (updater != null) updater.check(); }
+    @Override protected void onStop() { if (updater != null) updater.pause(); super.onStop(); }
+    @Override protected void onResume() { super.onResume(); if (updater != null) updater.resume(); if (coordinator != null) { coordinator.emit(); if (askingNotifications) finishNotificationPermission(); } }
     @Override protected void onSaveInstanceState(Bundle state) { web.saveState(state); super.onSaveInstanceState(state); }
     @Override public void onBackPressed() { if (web != null && web.canGoBack()) web.goBack(); else super.onBackPressed(); }
     @Override protected void onDestroy() {
         destroyed = true; coordinator.removeListener(statusListener); replyProxy = null;
+        if (updater != null) updater.close();
         for (AsyncResult<JSONObject> pending : permissionWaiters) pending.completeExceptionally(new IllegalStateException("Tela encerrada.")); permissionWaiters.clear();
         if (fileCallback != null) fileCallback.onReceiveValue(null);
         if (pendingWebPermission != null) pendingWebPermission.deny();
