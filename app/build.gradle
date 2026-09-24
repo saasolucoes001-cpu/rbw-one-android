@@ -14,8 +14,8 @@ android {
         applicationId 'br.com.rbwone.web'
         minSdk 23
         targetSdk 35
-        versionCode 3
-        versionName '1.0.2'
+        versionCode 4
+        versionName '1.0.3'
         buildConfigField 'boolean', 'FIREBASE_CONFIGURED', firebaseConfigured.toString()
         buildConfigField 'String', 'NOTIFICATIONS_API', '"https://qirmwsqksvraowcnleqw.supabase.co/functions/v1/notifications-api"'
         // Public publishable key, identical to the official website. No privileged credential belongs in an APK.

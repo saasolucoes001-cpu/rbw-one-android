@@ -86,3 +86,7 @@ Ao abrir ou trazer o app ao primeiro plano, o atualizador consulta `web-latest.j
 A instalação usa a confirmação do Android. A permissão para instalar atualizações é solicitada nas configurações do próprio app somente quando necessária. Cancelar/recusar mantém a versão atual; voltar do instalador não repete o aviso imediatamente. Não há instalação silenciosa, downgrade ou permissão ampla de arquivos. Esta primeira atualização deve ser instalada manualmente; a busca automática passa a existir a partir de 1.0.2.
 
 Após `testDebugUnitTest`, execute `scripts/test-android-time.ps1 -JavaHome <JDK17>` para testar com as classes de datas da biblioteca efetivamente incluída no APK. Um teste JVM 17 comum não reproduz o erro de Instant.parse do Android. Valide também em aparelho: registro, som/tela bloqueada, ícone circular, atualização mais nova, cancelamento e retorno das configurações de instalação.
+
+## Ícone de notificação 1.0.3
+
+Versão 1.0.3 / código 4 substitui o sino em `ic_notification.xml` pelo símbolo RBW monocromático, incluindo letras, arcos e pontos, sem o texto One. O recurso é um VectorDrawable branco de 24dp com fundo transparente; o Android aplica sua tonalização de contraste na barra de status. A marca colorida do launcher permanece igual. O vetor foi desenhado a partir do símbolo oficial, evitando os resíduos presentes nas conversões raster experimentais, que não foram incluídas no APK.
