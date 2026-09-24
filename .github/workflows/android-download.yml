@@ -1,0 +1,19 @@
+name: Android download checks
+on:
+  pull_request:
+    paths: ['download.html', 'index.html', '*latest.json', '*.apk', 'scripts/download.test.mjs', '.github/workflows/android-download.yml']
+  push:
+    branches: [main]
+    paths: ['download.html', 'index.html', '*latest.json', '*.apk', 'scripts/download.test.mjs', '.github/workflows/android-download.yml']
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test scripts/download.test.mjs

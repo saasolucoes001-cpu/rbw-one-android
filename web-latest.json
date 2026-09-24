@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "packageName": "br.com.rbwone.web",
+  "versionCode": 1,
+  "versionName": "1.0.0",
+  "apkUrl": "https://saasolucoes001-cpu.github.io/rbw-one-android/rbw-one-web-1.0.0.apk",
+  "sha256": "7803818236ecbed7e12d163f02743dc8b6aa9d49d04b83f2b5ca8a38295d9f18",
+  "sizeBytes": 3845090,
+  "minSdkVersion": 23,
+  "notice": "Novo aplicativo: instala separadamente das versões antigas e requer novo login. Para receber avisos em segundo plano, autorize as notificações pelo sino após entrar."
+}

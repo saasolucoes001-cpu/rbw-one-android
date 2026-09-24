@@ -1,21 +1,76 @@
 <!doctype html>
-<html lang="pt-BR"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>RBW One — APK mais recente</title>
-<style>body{font:16px/1.6 system-ui;background:#f4f7fa;color:#183a5b;padding:24px}main{max-width:640px;margin:32px auto;background:white;padding:28px;border-radius:20px}a{color:#004889}.download{display:inline-block;background:#004889;color:white;padding:12px 22px;border-radius:12px;text-decoration:none}small{overflow-wrap:anywhere}</style>
-<main><h1>RBW One para Android</h1><p id="status" role="status">Consultando a versão mais recente…</p>
-<p id="notice"></p><p><a id="download" class="download" hidden>Baixar APK</a></p>
-<p>Android 6 ou superior. A instalação depende da confirmação do Android.</p><small id="integrity"></small>
-<noscript>Ative JavaScript para consultar o instalador mais recente.</noscript></main>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RBW One — aplicativo Android</title>
+<style>
+*{box-sizing:border-box}body{font:16px/1.6 system-ui,sans-serif;background:#f4f7fa;color:#183a5b;margin:0;padding:24px}main{max-width:640px;margin:24px auto;background:white;padding:28px;border:1px solid #d6e1ea;border-radius:20px}h1{margin-top:0}a{color:#004889}.download{display:inline-block;background:#004889;color:white;padding:12px 22px;border-radius:12px;text-decoration:none;font-weight:600}button{font:inherit;color:#004889;background:white;border:1px solid #004889;border-radius:8px;padding:8px 14px;cursor:pointer}small{display:block;overflow-wrap:anywhere;color:#486176}[hidden]{display:none!important}@media(max-width:360px){body{padding:12px}main{padding:20px}}
+</style>
+</head>
+<body>
+<main>
+<h1>RBW One para Android</h1>
+<p>Aplicativo com central de notificações e som de bem-te-vi.</p>
+<p id="status" role="status" aria-live="polite">Consultando a versão disponível…</p>
+<p id="notice"></p>
+<p><a id="download" class="download" hidden>Baixar APK</a></p>
+<p><button id="retry" type="button" hidden>Consultar novamente</button></p>
+<p>Android 6 ou superior, com internet e Google Play Services para notificações. A instalação depende da confirmação do Android.</p>
+<p>Faça login e autorize as notificações pelo sino. Nas configurações do Android, você pode ajustar o som e a permissão de recebimento.</p>
+<small id="integrity"></small>
+<p><a href="./index.html#versoes-anteriores">Consultar as versões anteriores</a></p>
+<noscript><p>Ative JavaScript para consultar a versão atual. Os instaladores anteriores continuam disponíveis no link acima.</p></noscript>
+</main>
 <script type="module">
-const status=document.querySelector("#status"), link=document.querySelector("#download");
-try {
- const response=await fetch("./native-latest.json?t="+Date.now(),{cache:"no-store",signal:AbortSignal.timeout(10000)});
- if(!response.ok)throw Error();
- const release=await response.json(), url=new URL(release.apkUrl,location.href);
- if(release.packageName!=="br.com.rbwone.nativepreview" || url.origin!==location.origin || !url.pathname.startsWith("/rbw-one-android/") || !/^\/rbw-one-android\/[^/]+\.apk$/.test(url.pathname) || url.search || url.hash || !/^[a-f0-9]{64}$/.test(release.sha256))throw Error();
- status.textContent="Versão mais recente: "+release.versionName;
- document.querySelector("#notice").textContent=release.notice || "";
- document.querySelector("#integrity").textContent="SHA-256: "+release.sha256;
- link.href=url.href;link.download="";link.hidden=false;
-} catch {status.textContent="Não foi possível consultar a versão atual. Recarregue a página para tentar novamente."; }
-</script></html>
+const status = document.querySelector("#status");
+const link = document.querySelector("#download");
+const retry = document.querySelector("#retry");
+const notice = document.querySelector("#notice");
+const integrity = document.querySelector("#integrity");
+
+async function loadRelease() {
+  link.hidden = true;
+  link.removeAttribute("href");
+  retry.hidden = true;
+  notice.textContent = "";
+  integrity.textContent = "";
+  status.textContent = "Consultando a versão disponível…";
+  const controller = typeof AbortController === "function" ? new AbortController() : null;
+  let timeout;
+  try {
+    const request = fetch("./web-latest.json?t=" + Date.now(), {cache:"no-store", ...(controller ? {signal:controller.signal} : {})})
+      .then(response => { if (!response.ok) throw Error("Manifesto indisponível"); return response.json(); });
+    const release = await Promise.race([request, new Promise((_, reject) => {
+      timeout = setTimeout(() => { controller?.abort(); reject(Error("Tempo esgotado")); }, 10000);
+    })]);
+    const url = new URL(release.apkUrl, location.href);
+    if (release.schemaVersion !== 1 || release.packageName !== "br.com.rbwone.web"
+      || !Number.isSafeInteger(release.versionCode) || release.versionCode < 1
+      || typeof release.versionName !== "string" || !/^\d+\.\d+\.\d+$/.test(release.versionName)
+      || !Number.isSafeInteger(release.sizeBytes) || release.sizeBytes < 1 || release.sizeBytes > 100000000
+      || release.minSdkVersion !== 23
+      || url.origin !== location.origin || url.username || url.password
+      || !/^\/rbw-one-android\/rbw-one-web-\d+\.\d+\.\d+\.apk$/.test(url.pathname)
+      || !url.pathname.endsWith("/rbw-one-web-" + release.versionName + ".apk")
+      || url.search || url.hash || typeof release.sha256 !== "string" || !/^[a-f0-9]{64}$/.test(release.sha256)
+      || typeof release.notice !== "string" || release.notice.length > 600) throw Error("Manifesto inválido");
+    status.textContent = "Versão disponível: " + release.versionName;
+    notice.textContent = release.notice;
+    integrity.textContent = "Tamanho: " + release.sizeBytes.toLocaleString("pt-BR") + " bytes. SHA-256: " + release.sha256;
+    link.href = url.href;
+    link.download = "";
+    link.textContent = "Baixar APK — versão " + release.versionName;
+    link.hidden = false;
+  } catch {
+    status.textContent = "Não foi possível consultar o novo aplicativo. Tente novamente ou consulte as versões anteriores abaixo.";
+    retry.hidden = false;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+retry.addEventListener("click", loadRelease);
+await loadRelease();
+</script>
+</body>
+</html>

@@ -4,6 +4,16 @@ Aplicativo Android nativo que abre o site oficial `https://rbwone.com.br` em Web
 
 Esse pacote foi criado separadamente porque os aplicativos anteriores foram distribuídos sem suas fontes e chave de assinatura neste repositório. Não é atualização assinada dos pacotes anteriores. A instalação é paralela e requer novo login. `latest.json` e os APKs históricos não são alterados por este projeto. Ainda não há atualização automática do novo pacote: novas versões exigem instalação de um APK com o mesmo identificador e a mesma nova assinatura, com `versionCode` maior.
 
+## Canal de distribuição
+
+Os botões Android do perfil e do menu mobile apontam para a URL estável `https://saasolucoes001-cpu.github.io/rbw-one-android/download.html`. A página consulta **`web-latest.json`**, valida o pacote `br.com.rbwone.web`, versão, URL, tamanho e formato SHA-256, e oferece o arquivo com nome único. Em falhas, oculta o botão do novo APK e oferece nova consulta ou acesso explícito às versões anteriores; não substitui o pacote silenciosamente.
+
+O instalador preparado é `rbw-one-web-1.0.0.apk`, versão `1.0.0` / código `1`, **3.845.090 bytes**, SHA-256 **`7803818236ecbed7e12d163f02743dc8b6aa9d49d04b83f2b5ca8a38295d9f18`**. É cópia exata do release assinado e compilado com a configuração real Firebase. `latest.json` continua exclusivo do pacote legado; `native-latest.json` continua exclusivo da prévia nativa. Ambos, suas versões e seus APKs permanecem intactos.
+
+O canal está preparado para revisão, sem ativação em produção. Uma futura publicação depende do merge coordenado deste repositório e da ativação do frontend/backend de notificações. Primeiro disponibilize os serviços e a ponte web; publique o APK, confira tamanho/hash do download público e então ative o manifesto/página. Atualizar o destino desta página não exige recompilar o frontend nem o APK. A troca de arquivos de distribuição não comprova entrega FCM em aparelho; execute a validação real descrita abaixo.
+
+Para validar os arquivos locais de distribuição, execute `node --test scripts/download.test.mjs`. O teste confere o hash e o tamanho reais do APK, os canais antigos, os destinos permitidos e as falhas de rede/manifesto da página.
+
 ## Compilar e testar
 
 1. Instale JDK 17 e Android SDK com `platforms;android-35`, `build-tools;35.0.0` e `platform-tools`.
