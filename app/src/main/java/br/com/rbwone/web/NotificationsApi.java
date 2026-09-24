@@ -16,7 +16,7 @@ public final class NotificationsApi {
     public JSONObject request(String action, JSONObject payload, String token) throws Exception {
         if (!RoutePolicy.sessionToken(token)) throw new ApiException(401);
         HttpURLConnection connection = (HttpURLConnection) new URL(BuildConfig.NOTIFICATIONS_API).openConnection();
-        connection.setInstanceFollowRedirects(false); connection.setConnectTimeout(5000); connection.setReadTimeout(5000);
+        connection.setInstanceFollowRedirects(false); connection.setConnectTimeout(15000); connection.setReadTimeout(15000);
         connection.setRequestMethod("POST"); connection.setDoOutput(true);
         connection.setRequestProperty("Content-Type", "application/json");
         connection.setRequestProperty("apikey", BuildConfig.PUBLIC_API_KEY);
