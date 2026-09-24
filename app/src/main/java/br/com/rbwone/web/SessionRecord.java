@@ -1,7 +1,7 @@
 package br.com.rbwone.web;
 
 import org.json.JSONObject;
-import java.time.Instant;
+import java.time.OffsetDateTime;
 
 public final class SessionRecord {
     public final String token, userId, sessionId, expiresAt, fcmToken;
@@ -10,7 +10,8 @@ public final class SessionRecord {
         this.token = token; this.soundEnabled = soundEnabled; this.userId = userId; this.sessionId = sessionId; this.expiresAt = expiresAt; this.fcmToken = fcmToken;
     }
     public boolean verified(long now) {
-        try { return RoutePolicy.sessionToken(token) && RoutePolicy.uuid(userId) && RoutePolicy.uuid(sessionId) && Instant.parse(expiresAt).toEpochMilli() > now; }
+        // Android's desugared ISO_INSTANT accepts Z only; PostgreSQL returns +00:00.
+        try { return RoutePolicy.sessionToken(token) && RoutePolicy.uuid(userId) && RoutePolicy.uuid(sessionId) && OffsetDateTime.parse(expiresAt).toInstant().toEpochMilli() > now; }
         catch (Exception ignored) { return false; }
     }
     public boolean matches(String user, String session, long now) { return verified(now) && userId.equals(user) && sessionId.equals(session); }

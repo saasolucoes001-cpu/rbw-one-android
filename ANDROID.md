@@ -74,3 +74,15 @@ Os testes JVM cobrem origem, rotas, contrato da ponte, validade/identidade da se
 ## Correção de registro 1.0.1
 
 Versão 1.0.1 / código 2 mantém o pacote e a assinatura de 1.0.0, permitindo atualização. Conexão/leitura passam de 5 para 15 segundos, token FCM de 5 para 30 segundos. O status diferencia registration_timeout, registration_server_error e registration_failed, sem expor respostas de provedor ou credenciais. O site aguarda até 75 segundos nas ações de registro/permissão. O backend agora aciona o envio após COMMIT; o cron fica para recuperar falhas. Teste em aparelho físico continua necessário.
+
+## Registro, identidade visual e atualização 1.0.2
+
+Versão 1.0.2 / código 3 corrige a leitura de `session_expires_at`: PostgreSQL retorna `+00:00`, mas `Instant.parse` na biblioteca desugared 2.1.5 só aceita `Z`. O servidor registrava o aparelho com HTTP 200 e a validação local rejeitava a data. `OffsetDateTime.parse(...).toInstant()` preserva validade, fuso e verificações da sessão. A API também normaliza a resposta para UTC `Z`, compatível com APKs anteriores.
+
+O launcher usa o arquivo oficial `gestaoemp/public/pwa-512x512.png`, sem redesenho: SHA256 `a4cc71e4cab42b0b1bc6b18205c21e9e88d9aa61bb291b9a016b80e2fa2892ab`. Android 8+ recebe ícone adaptativo; versões anteriores recebem o mesmo PNG. O desenho genérico com R foi removido.
+
+Ao abrir ou trazer o app ao primeiro plano, o atualizador consulta `web-latest.json` sem bloquear o site. Quando há versão mais nova compatível, oferece Atualizar agora ou Depois. O download só começa após a escolha; o app confere origem HTTPS fixa, pacote, versão, tamanho, SHA256 e os mesmos certificados do aplicativo instalado. Redirecionamentos são rejeitados. Sem rede ou com manifesto inválido, a abertura segue normalmente. O APK fica somente no cache privado compartilhado com o instalador por FileProvider restrito ao diretório updates.
+
+A instalação usa a confirmação do Android. A permissão para instalar atualizações é solicitada nas configurações do próprio app somente quando necessária. Cancelar/recusar mantém a versão atual; voltar do instalador não repete o aviso imediatamente. Não há instalação silenciosa, downgrade ou permissão ampla de arquivos. Esta primeira atualização deve ser instalada manualmente; a busca automática passa a existir a partir de 1.0.2.
+
+Após `testDebugUnitTest`, execute `scripts/test-android-time.ps1 -JavaHome <JDK17>` para testar com as classes de datas da biblioteca efetivamente incluída no APK. Um teste JVM 17 comum não reproduz o erro de Instant.parse do Android. Valide também em aparelho: registro, som/tela bloqueada, ícone circular, atualização mais nova, cancelamento e retorno das configurações de instalação.
