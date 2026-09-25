@@ -4,7 +4,7 @@ Canal independente de distribuição de APKs: https://saasolucoes001-cpu.github.
 
 ## Novo projeto Android com notificações
 
-Este repositório também contém o novo aplicativo nativo WebView no diretório `app`, com identificador **`br.com.rbwone.web`**, Firebase Cloud Messaging e som de bem-te-vi. Consulte [ANDROID.md](ANDROID.md) para compilar, configurar Firebase e guardar a assinatura. O novo pacote é instalado em paralelo: não atualiza nem substitui os aplicativos distribuídos abaixo. Os arquivos históricos de distribuição permanecem preservados.
+Este repositório também contém o novo aplicativo nativo WebView no diretório `app`, com identificador **`br.com.rbwone.web`**, Firebase Cloud Messaging e som do RBW One. Consulte [ANDROID.md](ANDROID.md) para compilar, configurar Firebase e guardar a assinatura. O novo pacote é instalado em paralelo: não atualiza nem substitui os aplicativos distribuídos abaixo. Os arquivos históricos de distribuição permanecem preservados.
 
 O botão atual do RBW One usa [download.html](download.html), que nesta branch consulta [web-latest.json](web-latest.json) para oferecer `rbw-one-web-1.0.0.apk` (1.0.0, código 1). O canal está **preparado para revisão, sem ativação em produção**. Uma futura publicação deve ser coordenada com a central e o backend de notificações. A página [inicial](index.html) mantém os downloads anteriores separados. Verifique os metadados e o APK com `node --test scripts/download.test.mjs`.
 
