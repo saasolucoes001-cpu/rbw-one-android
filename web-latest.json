@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "packageName": "br.com.rbwone.web",
-  "versionCode": 4,
-  "versionName": "1.0.3",
-  "apkUrl": "https://saasolucoes001-cpu.github.io/rbw-one-android/rbw-one-web-1.0.3.apk",
-  "sha256": "63f8a04abc952a30efdc6cc23baa85f0c2244dd87d08ecf69961668d29e72c8b",
-  "sizeBytes": 4160769,
+  "versionCode": 5,
+  "versionName": "1.0.4",
+  "apkUrl": "https://saasolucoes001-cpu.github.io/rbw-one-android/rbw-one-web-1.0.4.apk",
+  "sha256": "4cbec7a8270d619f7f463f9356d385993c0bf6264e053546d3d903258590f5cd",
+  "sizeBytes": 4189613,
   "minSdkVersion": 23,
-  "notice": "Atualização 1.0.3: os alertas agora usam o símbolo RBW monocromático na barra de notificações. O Android adapta a cor para contraste. Atualize sobre a versão atual para manter o login."
+  "notice": "Atualização 1.0.4: novo som de notificação do RBW One. Atualize sobre a versão atual para manter o login e as preferências."
 }

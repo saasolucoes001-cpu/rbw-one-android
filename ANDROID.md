@@ -90,3 +90,9 @@ Após `testDebugUnitTest`, execute `scripts/test-android-time.ps1 -JavaHome <JDK
 ## Ícone de notificação 1.0.3
 
 Versão 1.0.3 / código 4 substitui o sino em `ic_notification.xml` pelo símbolo RBW monocromático, incluindo letras, arcos e pontos, sem o texto One. O recurso é um VectorDrawable branco de 24dp com fundo transparente; o Android aplica sua tonalização de contraste na barra de status. A marca colorida do launcher permanece igual. O vetor foi desenhado a partir do símbolo oficial, evitando os resíduos presentes nas conversões raster experimentais, que não foram incluídas no APK.
+
+## Novo som de notificação 1.0.4
+
+Versão 1.0.4 / código 5 incorpora o áudio `RBW One Som Notificacao.mpeg`, sem recodificação. O APK mantém o pacote `br.com.rbwone.web`, a configuração Firebase e o mesmo certificado da 1.0.3; a instalação atualiza o aplicativo existente. O canal e a URI do som permanecem estáveis para respeitar preferências do Android. Configurações de som escolhidas pelo usuário no sistema continuam prevalecendo.
+
+Distribuição: `rbw-one-web-1.0.4.apk`, 4.189.613 bytes, SHA-256 `4cbec7a8270d619f7f463f9356d385993c0bf6264e053546d3d903258590f5cd`. `web-latest.json` oferece esta versão à página de download e ao atualizador. Testes JVM, lint release, assinatura, pacote/versão, conteúdo do áudio e 24 testes de distribuição foram verificados; o comportamento em aparelho físico não foi testado nesta publicação.
