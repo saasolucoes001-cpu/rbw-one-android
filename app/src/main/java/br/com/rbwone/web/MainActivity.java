@@ -62,12 +62,14 @@ public final class MainActivity extends Activity {
     private MediaPlayer preview;
     private boolean destroyed;
     private AppUpdater updater;
+    private WebDownloads downloads;
     private final Consumer<JSONObject> statusListener = status -> runOnUiThread(() -> emit("status", "status", status));
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         updater = new AppUpdater(this);
+        downloads = new WebDownloads(this);
         coordinator = ((RbwApplication) getApplication()).notifications();
         coordinator.addListener(statusListener);
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
@@ -94,7 +96,7 @@ public final class MainActivity extends Activity {
                 if (request.isForMainFrame() && request.hasGesture()) openExternal(request.getUrl());
                 return true;
             }
-            @Override public void onPageStarted(WebView view, String url, android.graphics.Bitmap favicon) { replyProxy = null; errorPanel.setVisibility(View.GONE); }
+            @Override public void onPageStarted(WebView view, String url, android.graphics.Bitmap favicon) { replyProxy = null; downloads.reset(); errorPanel.setVisibility(View.GONE); }
             @Override public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
                 if (request.isForMainFrame()) errorPanel.setVisibility(View.VISIBLE);
             }
@@ -120,7 +122,12 @@ public final class MainActivity extends Activity {
                 return true;
             }
         });
-        web.setDownloadListener((url, userAgent, disposition, mime, length) -> openExternal(Uri.parse(url)));
+        web.setDownloadListener((url, userAgent, disposition, mime, length) -> {
+            if (url.startsWith("blob:") || url.startsWith("data:")) {
+                Toast.makeText(this, "Este download precisa ser iniciado pelo botão de salvar do site. Verifique também se o Android System WebView está atualizado.", Toast.LENGTH_LONG).show();
+            } else openExternal(Uri.parse(url));
+        });
+        if (!downloads.install(web)) addNotice(root, "Atualize o Android System WebView para salvar arquivos gerados pelo site.");
         if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
             WebViewCompat.addWebMessageListener(web, "RBWNotifications", Collections.singleton(RoutePolicy.ORIGIN), (view, message, sourceOrigin, isMainFrame, proxy) -> {
                 if (!isMainFrame || !RoutePolicy.officialOrigin(sourceOrigin.toString()) || !officialPage()) return;
@@ -142,9 +149,10 @@ public final class MainActivity extends Activity {
         switch (request.action) {
             case "setSession":
                 SessionRecord previous = coordinator.store().read();
+                if (previous != null && !previous.token.equals(request.payload.optString("sessionToken"))) downloads.reset();
                 if (!request.payload.optBoolean("soundEnabled") || previous == null || !previous.token.equals(request.payload.optString("sessionToken"))) stopPreview();
                 result = coordinator.setSession(request.payload.optString("sessionToken"), request.payload.optBoolean("soundEnabled")); break;
-            case "clear": stopPreview(); result = coordinator.clear(); break;
+            case "clear": stopPreview(); downloads.reset(); result = coordinator.clear(); break;
             case "getStatus": result = AsyncResult.completedFuture(coordinator.status()); break;
             case "requestPermission": result = requestNotifications(); break;
             case "previewSound":
@@ -234,6 +242,7 @@ public final class MainActivity extends Activity {
     }
     @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == WebDownloads.SAVE_FILE) { downloads.onActivityResult(resultCode, data); return; }
         if (requestCode == FILE_PICKER && fileCallback != null) {
             Uri[] result = null;
             if (resultCode == RESULT_OK && data != null && officialPage()) {
@@ -278,6 +287,7 @@ public final class MainActivity extends Activity {
     @Override protected void onDestroy() {
         destroyed = true; coordinator.removeListener(statusListener); replyProxy = null;
         if (updater != null) updater.close();
+        if (downloads != null) downloads.close();
         for (AsyncResult<JSONObject> pending : permissionWaiters) pending.completeExceptionally(new IllegalStateException("Tela encerrada.")); permissionWaiters.clear();
         if (fileCallback != null) fileCallback.onReceiveValue(null);
         if (pendingWebPermission != null) pendingWebPermission.deny();
