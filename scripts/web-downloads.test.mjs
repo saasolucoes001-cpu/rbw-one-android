@@ -4,7 +4,7 @@ import vm from 'node:vm';
 import { readFileSync } from 'node:fs';
 
 const source = readFileSync(new URL('../app/src/main/assets/downloads.js', import.meta.url), 'utf8');
-function harness({ fail, responseBlob, foreign = false } = {}) {
+function harness({ fail, responseBlob, response, foreign = false } = {}) {
   const messages = [], notices = [], listeners = new Map();
   let originalClicks = 0, fetches = 0;
   class Anchor {
@@ -19,14 +19,14 @@ function harness({ fail, responseBlob, foreign = false } = {}) {
     if (!message.requestId) return;
     queueMicrotask(() => bridge.onmessage({ data: JSON.stringify({ requestId: message.requestId, ok: message.action !== fail, error: 'Falha simulada' }) }));
   }};
-  const window = { RBWDownloads: bridge, alert: message => notices.push(message) };
+  const window = { RBWDownloads: bridge, alert: message => notices.push(message), open: () => 'original-window' };
   window.top = foreign ? {} : window;
   const context = { window, location: { origin: 'https://rbwone.com.br' },
     HTMLAnchorElement: Anchor, document: { addEventListener: (name, fn) => listeners.set(name, fn) },
-    fetch: async () => { fetches++; return { ok: true, blob: async () => responseBlob ?? new Blob([new Uint8Array([0, 128, 255])], { type: 'application/pdf' }) }; },
+    fetch: async () => { fetches++; return response ?? { ok: true, blob: async () => responseBlob ?? new Blob([new Uint8Array([0, 128, 255])], { type: 'application/pdf' }) }; },
     Uint8Array, setTimeout, clearTimeout, btoa, Date, Math };
   vm.runInNewContext(source, context);
-  return { Anchor, messages, notices, listeners, clicks: () => originalClicks, fetches: () => fetches };
+  return { Anchor, window, messages, notices, listeners, clicks: () => originalClicks, fetches: () => fetches };
 }
 const tick = () => new Promise(resolve => setTimeout(resolve, 20));
 test('FileSaver-style detached dispatchEvent exports reach the bridge', async () => {
@@ -67,10 +67,10 @@ test('user download click is intercepted once and data exports work', async () =
   await tick(); assert.equal(prevented, true); assert.equal(h.fetches(), 1);
 });
 test('oversized files fail visibly without beginning a native transfer', async () => {
-  const h = harness({ responseBlob: { size: 64 * 1024 * 1024 + 1 } });
+  const h = harness({ responseBlob: { size: 512 * 1024 * 1024 + 1 } });
   new h.Anchor('blob:https://rbwone.com.br/id').click(); await tick();
   assert.equal(h.messages.some(x => x.action === 'begin'), false);
-  assert.match(h.notices[0], /64 MB/);
+  assert.match(h.notices[0], /512 MB/);
 });
 test('transfer errors cancel native state and permit retry', async () => {
   const h = harness({ fail: 'chunk' });
@@ -86,4 +86,23 @@ test('concurrent exports do not interleave', async () => {
 test('subframes do not install the download bridge', () => {
   const h = harness({ foreign: true }); new h.Anchor('blob:https://rbwone.com.br/id').click();
   assert.equal(h.clicks(), 1); assert.equal(h.listeners.size, 0);
+});
+test('unknown-length streams are chunked without materializing a blob', async () => {
+  let count = 0, cancelled = false;
+  const bytes = new Uint8Array(80000).fill(123);
+  const response = { ok: true, headers: { get: key => key === 'Content-Type' ? 'application/pdf' : null },
+    blob: () => { throw new Error('Streaming must not allocate a full blob'); },
+    body: { getReader: () => ({ read: async () => count++ ? { done: true } : { value: bytes, done: false }, cancel: async () => { cancelled = true; } }) } };
+  const h = harness({ response }); new h.Anchor('blob:https://rbwone.com.br/id').click(); await tick();
+  assert.equal(h.messages[0].size, -1);
+  const chunks = h.messages.filter(x => x.action === 'chunk');
+  assert.deepEqual(Buffer.concat(chunks.map(x => Buffer.from(x.data, 'base64'))), Buffer.from(bytes));
+  assert.equal(cancelled, true); assert.equal(h.messages.at(-1).action, 'finish');
+});
+test('blob window.open selects preview mode while ordinary windows retain behavior', async () => {
+  const h = harness(); const opened = h.window.open('blob:https://rbwone.com.br/preview', '_blank');
+  assert.equal(opened.closed, false); await tick();
+  assert.equal(h.messages[0].mode, 'preview'); assert.equal(h.messages[0].name, 'documento.pdf');
+  assert.equal(h.window.open('', '_blank'), 'original-window');
+  assert.equal(h.window.open('https://external.example'), 'original-window');
 });

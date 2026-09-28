@@ -1,41 +1,46 @@
-# Homologação do aplicativo WebView
+# Homologação WebView — 1.0.6
 
-## Escopo desta alteração
+## Correções implementadas
 
-Manter as telas e regras do gestaoemp no site. Adicionar ao Android o salvamento de downloads gerados em memória, sem alterar o Supabase ou as permissões dos usuários.
+| Fluxo | Implementação e evidência |
+| --- | --- |
+| Downloads gerados pelo site | Ponte restrita à origem oficial/frame principal. Testes JavaScript, JVM e Chromium com bytes reais, cliques de bibliotecas e revogação imediata de URL. |
+| Downloads HTTPS autenticados | Cookies da origem oficial não seguem em redirecionamento externo. Testes de redirecionamento, autenticação negada, cancelamento e arquivo truncado. |
+| Arquivos acima de 64 MiB | Até 512 MiB, streaming e tamanho desconhecido. Teste JVM grava e verifica 65 MiB sem alocar o arquivo inteiro em memória. |
+| Pré-visualização blob | window.open(blob:) entrega um arquivo temporário a um visualizador Android; sem visualizador, oferece salvar. Acesso específico de leitura, revogado na navegação/logout/fechamento. |
+| Impressão HTML | window.print() usa PrintManager. Relatórios document.write recebem janela com Imprimir / Salvar PDF e Fechar. Compilado e verificado por lint; impressão real pendente. |
+| PDFs em iframe | Para blobs PDF identificados, oferece abrir no visualizador e tenta encaminhar print(). Homologação Android pendente. |
+| Páginas externas | Novas janelas externas abrem no navegador por ação do usuário. Frames externos não recebem pontes privilegiadas. |
 
-O script é instalado antes dos scripts do site, somente na origem oficial e no frame principal. Intercepta links com atributo `download` e URLs `blob:https://rbwone.com.br/` ou `data:`. O site continua responsável por buscar os arquivos privados com a sessão existente. Nenhuma credencial é encaminhada a um navegador externo pela ponte.
+## Testes reproduzíveis
 
-O conteúdo segue em blocos de 48 KiB com confirmação, sequência e tamanho verificados, até 64 MiB por arquivo. O Android usa cache privado temporário e `ACTION_CREATE_DOCUMENT`; o usuário escolhe o destino. A transferência é cancelada em navegação de documento, fechamento da Activity ou inatividade. O cache é removido no sucesso, cancelamento e falha; sob encerramento abrupto do processo, arquivos abandonados há mais de um dia são removidos na próxima abertura.
+- `node --test scripts/web-downloads.test.mjs scripts/download.test.mjs`
+- `gradlew.bat :app:testDebugUnitTest :app:lintRelease :app:assembleRelease`
+- `node scripts/web-downloads.browser.cjs`
 
-## Limites conhecidos
+O último comando requer Playwright e Chrome; PLAYWRIGHT_MODULE pode indicar o caminho do módulo. Usa um perfil temporário e respostas simuladas; não acessa contas nem dados de produção.
 
-- Alteração incluída na versão 1.0.5, publicada a pedido do usuário com homologação em aparelho físico pendente.
-- Links HTTP(S) continuam seguindo o comportamento anterior, abrindo externamente. Downloads que dependem exclusivamente de cookies da WebView precisam de validação específica.
-- Pré-visualizações `blob:` sem atributo `download`, `window.open`, impressão e downloads iniciados por frames externos não são convertidos em salvamento por esta ponte.
-- Arquivos acima de 64 MiB mostram orientação para usar o navegador. Um download por vez.
-- WebView precisa suportar `WEB_MESSAGE_LISTENER` e `DOCUMENT_START_SCRIPT`; o app informa quando é necessário atualizar o componente.
-- O CI e a compilação sem `google-services.json` produzem APK de desenvolvimento sem push configurado. Não distribuir esse APK como versão de produção.
+## Pendências físicas
 
-## Matriz em aparelho — ainda pendente
+O usuário optou por continuar sem celular. Não há aparelho conectado nem emulador instalado. Não declarar os fluxos abaixo aprovados com base nos testes JVM/Chromium.
 
-Usar contas e registros de teste, evitando assinaturas, pagamentos e aprovações reais. Registrar aparelho, Android, WebView, perfil, resultado e evidência em cada linha.
+| Jornada | Estado |
+| --- | --- |
+| Atualizar sobre 1.0.5, preservando login/preferências | Certificado comparado; instalação física pendente |
+| PDF, XLSX e anexo reais por perfil | Pendente em aparelho com conta de teste |
+| Cancelamento, destino sem espaço e nova tentativa | Lógica testada; seletor físico pendente |
+| Impressão, visualizador e retorno ao app | Pendente em aparelho |
+| Câmera, microfone, localização e uploads | Pendente em aparelho |
+| Login, troca de conta e logout | Testes de política existentes; jornada real pendente |
+| Push aberto/segundo plano/tela bloqueada | Firebase compilado; entrega real pendente |
+| Portais externos e iframes de terceiros | Pendente com acesso de teste ao serviço externo |
 
-| Jornada | Critério de aprovação | Estado |
-| --- | --- | --- |
-| Arquivo privado do Storage | Salvar, abrir e comparar tamanho/hash ao original; nome preservado | Pendente |
-| Relatório de acessos PDF e XLSX | Salvar e abrir; senha do documento preservada quando aplicável | Pendente |
-| Exportação XLSX de clientes/inspeções | Planilha abre sem corrupção e contém os registros esperados | Pendente |
-| Cancelar seletor e tentar novamente | Cancelamento sem arquivo temporário restante; novo download funciona | Pendente |
-| Navegar/fechar durante transferência | Sem diálogo tardio nem entrega de arquivo de outra página | Pendente |
-| Arquivo vazio, grande e acima do limite | Vazio preservado; grande íntegro; limite informado sem travar | Pendente |
-| Destino indisponível/sem espaço | Erro visível; possibilidade de tentar novamente | Pendente |
-| Upload, câmera, microfone e localização | Solicitar ao usar; recusa não impede navegação; anexos corretos | Pendente |
-| Login, expiração, logout e troca de conta | Dados e notificações respeitam a sessão e as permissões | Pendente |
-| Push aberto, segundo plano e tela bloqueada | Um aviso autorizado, som conforme preferência e destino correto | Pendente |
-| Atualização assinada | Mesmo pacote/certificado; instalação e cancelamento preservam uso | Pendente |
-| Perfis administrativo, cliente, colaborador e prestador | Consultas, formulários e gravações de teste equivalentes ao web | Pendente |
+## Limites explícitos
 
-## Publicação
-
-Após homologar, incrementar `versionCode`/`versionName`, compilar com Firebase e a assinatura existente, verificar assinatura e conteúdo do APK e publicar um arquivo com nome novo. Atualizar `web-latest.json` somente com tamanho e hash do artefato aprovado. Preservar os canais legado e de prévia nativa. Não substituir o conteúdo de APKs já publicados.
+- Até 512 MiB por arquivo, uma transferência por vez e armazenamento livre suficiente.
+- HTTPS obrigatório. O app não inventa cabeçalhos de autenticação; o site continua responsável por buscar arquivos com seu SDK/token antes de entregar o blob.
+- Pontes não são expostas a frames de terceiros. Seus blobs privados exigem uso do serviço externo no navegador ou integração autorizada.
+- Pré-visualizações usam aplicativos Android instalados; a impressão de PDFs depende do visualizador. Sem aplicativo compatível, pode-se salvar.
+- Previews ficam em cache privado e são removidos/revogados ao encerrar o contexto. Após morte abrupta do processo, temporários com mais de um dia são limpos na próxima abertura.
+- Remoção de um documento de destino parcialmente salvo depende do suporte do provedor Android.
+- Equivalência funcional de todos os módulos ainda exige contas de teste e jornadas reais.

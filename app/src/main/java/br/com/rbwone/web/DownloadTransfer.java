@@ -8,7 +8,7 @@ import org.json.JSONObject;
 
 /** Bounded, sequential transfer into private cache; never accepts a filesystem path. */
 final class DownloadTransfer implements AutoCloseable {
-    static final long MAX_BYTES = 64L * 1024 * 1024;
+    static final long MAX_BYTES = 512L * 1024 * 1024;
     static final int CHUNK_BYTES = 48 * 1024;
     private final File directory;
     private File file;
@@ -27,9 +27,9 @@ final class DownloadTransfer implements AutoCloseable {
         if (action.equals("begin")) {
             if (file != null) throw new IOException("Transfer already active");
             long size = message.getLong("size");
-            if (size < 0 || size > MAX_BYTES) throw new IOException("File exceeds limit");
+            if (size < -1 || size > MAX_BYTES) throw new IOException("File exceeds limit");
             name = safeName(message.optString("name"));
-            String type = message.optString("mime");
+            String type = message.optString("mime").split(";", 2)[0].trim();
             mime = type.matches("[a-zA-Z0-9!#$&^_.+-]+/[a-zA-Z0-9!#$&^_.+-]+") ? type : "application/octet-stream";
             if (!directory.isDirectory() && !directory.mkdirs()) throw new IOException("Cache unavailable");
             file = File.createTempFile("download-", ".tmp", directory);
@@ -43,12 +43,12 @@ final class DownloadTransfer implements AutoCloseable {
             String encoded = message.getString("data");
             if (encoded.length() > CHUNK_BYTES * 4 / 3) throw new IOException("Chunk exceeds limit");
             byte[] bytes = Base64.getDecoder().decode(encoded);
-            if (bytes.length == 0 || received + bytes.length > expected) throw new IOException("Invalid size");
+            if (bytes.length == 0 || received + bytes.length > MAX_BYTES || (expected >= 0 && received + bytes.length > expected)) throw new IOException("Invalid size");
             output.write(bytes); received += bytes.length; sequence++;
             return false;
         }
         if (action.equals("finish")) {
-            if (received != expected) throw new IOException("Incomplete transfer");
+            if (expected >= 0 && received != expected) throw new IOException("Incomplete transfer");
             output.close(); output = null;
             return true;
         }
