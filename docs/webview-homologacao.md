@@ -10,7 +10,7 @@ O conteúdo segue em blocos de 48 KiB com confirmação, sequência e tamanho ve
 
 ## Limites conhecidos
 
-- Alteração de código ainda não incluída no APK público 1.0.4.
+- Alteração incluída na versão 1.0.5, publicada a pedido do usuário com homologação em aparelho físico pendente.
 - Links HTTP(S) continuam seguindo o comportamento anterior, abrindo externamente. Downloads que dependem exclusivamente de cookies da WebView precisam de validação específica.
 - Pré-visualizações `blob:` sem atributo `download`, `window.open`, impressão e downloads iniciados por frames externos não são convertidos em salvamento por esta ponte.
 - Arquivos acima de 64 MiB mostram orientação para usar o navegador. Um download por vez.

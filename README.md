@@ -6,11 +6,11 @@ Canal independente de distribuição de APKs: https://saasolucoes001-cpu.github.
 
 Este repositório também contém o novo aplicativo nativo WebView no diretório `app`, com identificador **`br.com.rbwone.web`**, Firebase Cloud Messaging e som do RBW One. Consulte [ANDROID.md](ANDROID.md) para compilar, configurar Firebase e guardar a assinatura. O novo pacote é instalado em paralelo: não atualiza nem substitui os aplicativos distribuídos abaixo. Os arquivos históricos de distribuição permanecem preservados.
 
-O botão atual do RBW One usa [download.html](download.html), que consulta [web-latest.json](web-latest.json). A versão publicada é **1.0.4, código 5**, pacote `br.com.rbwone.web`. A página [inicial](index.html) mantém os downloads anteriores separados. Verifique os metadados e o APK com `node --test scripts/download.test.mjs`.
+O botão atual do RBW One usa [download.html](download.html), que consulta [web-latest.json](web-latest.json). A versão publicada é **1.0.5, código 6**, pacote `br.com.rbwone.web`. A página [inicial](index.html) mantém os downloads anteriores separados. Verifique os metadados e o APK com `node --test scripts/download.test.mjs`.
 
-### Downloads gerados pelo site — alteração em desenvolvimento
+### Downloads gerados pelo site — versão 1.0.5
 
-O código-fonte inclui uma ponte para salvar arquivos de links `blob:` e `data:` com atributo `download`, como PDFs e planilhas. O usuário escolhe o destino pelo seletor do Android. A transferência é limitada a 64 MiB por arquivo, em blocos de 48 KiB, e não pede acesso amplo ao armazenamento. A alteração **ainda não está nos APKs publicados**; a versão e os manifestos permanecem inalterados até homologação e assinatura de uma nova versão.
+O código-fonte inclui uma ponte para salvar arquivos de links `blob:` e `data:` com atributo `download`, como PDFs e planilhas. O usuário escolhe o destino pelo seletor do Android. A transferência é limitada a 64 MiB por arquivo, em blocos de 48 KiB, e não pede acesso amplo ao armazenamento. A alteração integra o APK 1.0.5, assinado com o mesmo certificado da 1.0.4. A publicação foi solicitada pelo usuário com a validação em aparelho físico ainda pendente.
 
 Execute `node --test scripts/web-downloads.test.mjs` e os testes Android de [ANDROID.md](ANDROID.md). A homologação em aparelho e os limites estão em [docs/webview-homologacao.md](docs/webview-homologacao.md).
 

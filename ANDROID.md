@@ -2,13 +2,13 @@
 
 ## Estado atual — 28/09/2026
 
-O canal público `web-latest.json` oferece **1.0.4 / código 5**. As seções iniciais abaixo registram a preparação histórica da versão 1.0.0; as referências a canal não ativado e ausência de atualização automática foram superadas pelas publicações seguintes. O atualizador existe desde 1.0.2.
+O canal público `web-latest.json` oferece **1.0.5 / código 6**. As seções iniciais abaixo registram a preparação histórica da versão 1.0.0; as referências a canal não ativado e ausência de atualização automática foram superadas pelas publicações seguintes. O atualizador existe desde 1.0.2.
 
-### Downloads em desenvolvimento
+### Downloads — versão 1.0.5
 
 O código agora inclui a ponte `RBWDownloads`, separada da ponte de notificações, restrita à origem oficial e ao frame principal. Um script no início do documento encaminha downloads `blob:`/`data:` de links com atributo `download` em blocos confirmados de 48 KiB, com limite de 64 MiB. O Android valida tamanho e ordem, mantém um arquivo temporário privado e abre o seletor de destino do sistema. Não há permissão ampla de armazenamento.
 
-Essa correção ainda não integra os APKs publicados. Links HTTP(S) continuam abrindo externamente; pré-visualizações, impressão e frames externos exigem validação própria. Execute `node --test scripts/web-downloads.test.mjs`, além dos testes Android abaixo. Consulte [a matriz de homologação](docs/webview-homologacao.md) antes de assinar e publicar outra versão.
+Essa correção integra o APK 1.0.5, com Firebase e o mesmo certificado da 1.0.4. Publicação solicitada pelo usuário; a validação em aparelho físico continua pendente. Links HTTP(S) continuam abrindo externamente; pré-visualizações, impressão e frames externos exigem validação própria. Execute `node --test scripts/web-downloads.test.mjs`, além dos testes Android abaixo. Consulte [a matriz de homologação](docs/webview-homologacao.md) antes de assinar e publicar outra versão.
 
 Aplicativo Android nativo que abre o site oficial `https://rbwone.com.br` em WebView e recebe as notificações autorizadas da central por Firebase Cloud Messaging (FCM), inclusive com o aplicativo em segundo plano. Nome no aparelho: **RBW One**. Identificador: **`br.com.rbwone.web`**. Android mínimo: 6.0 (API 23); compilação/alvo: API 35; Java 17; Gradle 8.11.1; Android Gradle Plugin 8.9.2.
 
