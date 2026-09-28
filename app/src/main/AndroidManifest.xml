@@ -29,5 +29,9 @@
             <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/update_paths" />
         </provider>
         <meta-data android:name="firebase_analytics_collection_enabled" android:value="false" />
+        <provider android:name=".DocumentProvider" android:authorities="${applicationId}.documents"
+            android:exported="false" android:grantUriPermissions="true">
+            <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/document_paths" />
+        </provider>
     </application>
 </manifest>

@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "packageName": "br.com.rbwone.web",
-  "versionCode": 6,
-  "versionName": "1.0.5",
-  "apkUrl": "https://saasolucoes001-cpu.github.io/rbw-one-android/rbw-one-web-1.0.5.apk",
-  "sha256": "c33ccdfbff5625df86e6b25952cbfb9e7ccf54c47625f40e62b8feef4a766a32",
-  "sizeBytes": 4191409,
+  "versionCode": 7,
+  "versionName": "1.0.6",
+  "apkUrl": "https://saasolucoes001-cpu.github.io/rbw-one-android/rbw-one-web-1.0.6.apk",
+  "sha256": "2f61f47cf76ef8e65a5e418043270700570f72798489ad72cfbcbe4a44561430",
+  "sizeBytes": 4209996,
   "minSdkVersion": 23,
-  "notice": "Atualização 1.0.5: salvamento de PDFs, planilhas e arquivos gerados pelo site, até 64 MB. Validação em aparelho físico pendente."
+  "notice": "Atualização 1.0.6: downloads HTTPS, documentos, impressão HTML e arquivos até 512 MB. Validação física pendente."
 }

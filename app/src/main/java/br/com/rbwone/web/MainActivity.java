@@ -63,6 +63,7 @@ public final class MainActivity extends Activity {
     private boolean destroyed;
     private AppUpdater updater;
     private WebDownloads downloads;
+    private WebPrinting printing;
     private final Consumer<JSONObject> statusListener = status -> runOnUiThread(() -> emit("status", "status", status));
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -70,6 +71,7 @@ public final class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         updater = new AppUpdater(this);
         downloads = new WebDownloads(this);
+        printing = new WebPrinting(this);
         coordinator = ((RbwApplication) getApplication()).notifications();
         coordinator.addListener(statusListener);
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
@@ -85,7 +87,7 @@ public final class MainActivity extends Activity {
         web = new WebView(this); web.setId(View.generateViewId()); root.addView(web, new LinearLayout.LayoutParams(-1, 0, 1)); setContentView(root);
         WebSettings settings = web.getSettings(); settings.setJavaScriptEnabled(true); settings.setDomStorageEnabled(true);
         settings.setAllowFileAccess(false); settings.setAllowContentAccess(false); settings.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
-        settings.setMediaPlaybackRequiresUserGesture(true); settings.setSupportMultipleWindows(false);
+        settings.setMediaPlaybackRequiresUserGesture(true); settings.setSupportMultipleWindows(true);
         if (Build.VERSION.SDK_INT >= 26) settings.setSafeBrowsingEnabled(true);
         WebView.setWebContentsDebuggingEnabled(BuildConfig.DEBUG);
         CookieManager.getInstance().setAcceptCookie(true); CookieManager.getInstance().setAcceptThirdPartyCookies(web, false);
@@ -102,6 +104,9 @@ public final class MainActivity extends Activity {
             }
         });
         web.setWebChromeClient(new WebChromeClient() {
+            @Override public boolean onCreateWindow(WebView view, boolean dialog, boolean userGesture, android.os.Message result) {
+                return printing.open(view, userGesture, result);
+            }
             @Override public void onPermissionRequest(PermissionRequest request) { runOnUiThread(() -> handleWebPermission(request)); }
             @Override public void onPermissionRequestCanceled(PermissionRequest request) { if (pendingWebPermission == request) pendingWebPermission = null; }
             @Override public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback callback) {
@@ -125,9 +130,10 @@ public final class MainActivity extends Activity {
         web.setDownloadListener((url, userAgent, disposition, mime, length) -> {
             if (url.startsWith("blob:") || url.startsWith("data:")) {
                 Toast.makeText(this, "Este download precisa ser iniciado pelo botão de salvar do site. Verifique também se o Android System WebView está atualizado.", Toast.LENGTH_LONG).show();
-            } else openExternal(Uri.parse(url));
+            } else if (officialPage()) downloads.downloadHttp(url, userAgent, disposition, mime);
         });
         if (!downloads.install(web)) addNotice(root, "Atualize o Android System WebView para salvar arquivos gerados pelo site.");
+        printing.install(web);
         if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
             WebViewCompat.addWebMessageListener(web, "RBWNotifications", Collections.singleton(RoutePolicy.ORIGIN), (view, message, sourceOrigin, isMainFrame, proxy) -> {
                 if (!isMainFrame || !RoutePolicy.officialOrigin(sourceOrigin.toString()) || !officialPage()) return;
@@ -149,10 +155,10 @@ public final class MainActivity extends Activity {
         switch (request.action) {
             case "setSession":
                 SessionRecord previous = coordinator.store().read();
-                if (previous != null && !previous.token.equals(request.payload.optString("sessionToken"))) downloads.reset();
+                if (previous != null && !previous.token.equals(request.payload.optString("sessionToken"))) { downloads.reset(); printing.close(); }
                 if (!request.payload.optBoolean("soundEnabled") || previous == null || !previous.token.equals(request.payload.optString("sessionToken"))) stopPreview();
                 result = coordinator.setSession(request.payload.optString("sessionToken"), request.payload.optBoolean("soundEnabled")); break;
-            case "clear": stopPreview(); downloads.reset(); result = coordinator.clear(); break;
+            case "clear": stopPreview(); downloads.reset(); printing.close(); result = coordinator.clear(); break;
             case "getStatus": result = AsyncResult.completedFuture(coordinator.status()); break;
             case "requestPermission": result = requestNotifications(); break;
             case "previewSound":
@@ -288,6 +294,7 @@ public final class MainActivity extends Activity {
         destroyed = true; coordinator.removeListener(statusListener); replyProxy = null;
         if (updater != null) updater.close();
         if (downloads != null) downloads.close();
+        if (printing != null) printing.close();
         for (AsyncResult<JSONObject> pending : permissionWaiters) pending.completeExceptionally(new IllegalStateException("Tela encerrada.")); permissionWaiters.clear();
         if (fileCallback != null) fileCallback.onReceiveValue(null);
         if (pendingWebPermission != null) pendingWebPermission.deny();

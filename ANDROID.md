@@ -2,7 +2,7 @@
 
 ## Estado atual — 28/09/2026
 
-O canal público `web-latest.json` oferece **1.0.5 / código 6**. As seções iniciais abaixo registram a preparação histórica da versão 1.0.0; as referências a canal não ativado e ausência de atualização automática foram superadas pelas publicações seguintes. O atualizador existe desde 1.0.2.
+O canal público `web-latest.json` oferece **1.0.6 / código 7**. As seções iniciais abaixo registram a preparação histórica da versão 1.0.0; as referências a canal não ativado e ausência de atualização automática foram superadas pelas publicações seguintes. O atualizador existe desde 1.0.2.
 
 ### Downloads — versão 1.0.5
 
@@ -106,3 +106,11 @@ Versão 1.0.3 / código 4 substitui o sino em `ic_notification.xml` pelo símbol
 Versão 1.0.4 / código 5 incorpora o áudio `RBW One Som Notificacao.mpeg`, sem recodificação. O APK mantém o pacote `br.com.rbwone.web`, a configuração Firebase e o mesmo certificado da 1.0.3; a instalação atualiza o aplicativo existente. O canal e a URI do som permanecem estáveis para respeitar preferências do Android. Configurações de som escolhidas pelo usuário no sistema continuam prevalecendo.
 
 Distribuição: `rbw-one-web-1.0.4.apk`, 4.189.613 bytes, SHA-256 `4cbec7a8270d619f7f463f9356d385993c0bf6264e053546d3d903258590f5cd`. `web-latest.json` oferece esta versão à página de download e ao atualizador. Testes JVM, lint release, assinatura, pacote/versão, conteúdo do áudio e 24 testes de distribuição foram verificados; o comportamento em aparelho físico não foi testado nesta publicação.
+
+## Documentos, HTTPS e impressão 1.0.6
+
+Versão 1.0.6 / código 7 mantém Firebase e o certificado existente. Downloads HTTPS são transferidos para cache privado e salvos pelo seletor Android. Cookies da origem oficial nunca seguem para outro domínio em redirecionamentos; HTTP sem TLS e URLs com credenciais são rejeitados.
+
+Downloads gerados pelo site passam a usar streaming, até 512 MiB, incluindo respostas sem tamanho conhecido. Documentos abertos com window.open(blob:) são entregues a um visualizador Android com permissão temporária de leitura; sem visualizador, o app oferece salvar. Relatórios HTML em novas janelas recebem uma janela própria com Imprimir / Salvar PDF e Fechar; window.print() da origem oficial usa o serviço de impressão do Android.
+
+O teste scripts/web-downloads.browser.cjs usa Playwright e Chrome em um perfil isolado com respostas simuladas. Não acessa dados reais. Foram verificados cliques, revogação imediata de URL, integridade binária e bloqueio em origem externa. Ver a matriz atual de homologação para os testes físicos ainda pendentes.

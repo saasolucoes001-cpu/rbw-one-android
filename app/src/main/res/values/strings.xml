@@ -2,4 +2,6 @@
     <string name="app_name">RBW One</string>
     <string name="load_failed">Não foi possível carregar o RBW One. Verifique sua conexão e tente novamente.</string>
     <string name="retry">Tentar novamente</string>
+    <string name="print_document">Imprimir / Salvar PDF</string>
+    <string name="close_document">Fechar</string>
 </resources>

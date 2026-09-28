@@ -6,10 +6,13 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.webkit.WebView;
+import android.webkit.CookieManager;
+import android.webkit.URLUtil;
 import android.widget.Toast;
 import androidx.webkit.JavaScriptReplyProxy;
 import androidx.webkit.WebViewCompat;
 import androidx.webkit.WebViewFeature;
+import androidx.core.content.FileProvider;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.OutputStream;
@@ -30,8 +33,11 @@ final class WebDownloads {
     private File pendingFile;
     private String activeId, finishRequest;
     private JavaScriptReplyProxy finishProxy;
-    private int generation;
+    private volatile int generation;
     private boolean processing, closed, saving, pickerOutstanding;
+    private boolean preview;
+    private final java.util.List<Uri> previewUris = new java.util.ArrayList<>();
+    private final java.util.List<File> previewFiles = new java.util.ArrayList<>();
     private final Runnable timeout = this::reset;
 
     WebDownloads(Activity activity) {
@@ -44,6 +50,12 @@ final class WebDownloads {
             if (files != null) for (File file : files) {
                 if (file.isFile() && file.getName().startsWith("download-") &&
                     System.currentTimeMillis() - file.lastModified() > 86400000L) file.delete();
+                if (file.isDirectory() && file.getName().matches("preview-[a-f0-9-]{36}") &&
+                    System.currentTimeMillis() - file.lastModified() > 86400000L) {
+                    File[] documents = file.listFiles();
+                    if (documents != null) for (File document : documents) if (document.isFile()) document.delete();
+                    file.delete();
+                }
             }
         });
     }
@@ -65,7 +77,9 @@ final class WebDownloads {
                         receive(message.getData(), proxy);
                     }
                 });
-            WebViewCompat.addDocumentStartJavaScript(web, script, Collections.singleton(RoutePolicy.ORIGIN));
+            if (WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)) {
+                WebViewCompat.addDocumentStartJavaScript(web, script, Collections.singleton(RoutePolicy.ORIGIN));
+            }
             return true;
         } catch (Exception ignored) { return false; }
     }
@@ -88,6 +102,7 @@ final class WebDownloads {
                 reply(proxy, request, false, "Já existe um download em andamento."); return;
             }
             activeId = id;
+            if ("begin".equals(message.optString("action"))) preview = "preview".equals(message.optString("mode"));
             processing = true;
             int captured = generation;
             DownloadTransfer current = transfer;
@@ -110,14 +125,75 @@ final class WebDownloads {
                     if (!finished) { reply(proxy, request, true, null); return; }
                     pendingFile = current.detach(); finishProxy = proxy; finishRequest = request;
                     handler.removeCallbacks(timeout); handler.postDelayed(timeout, 10 * 60 * 1000);
-                    Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE)
-                        .setType(current.mime).putExtra(Intent.EXTRA_TITLE, current.name);
-                    try { pickerOutstanding = true; activity.startActivityForResult(intent, SAVE_FILE); }
-                    catch (Exception error) { pickerOutstanding = false; complete(false, "Nenhum aplicativo disponível para salvar arquivos."); }
+                    present(current.name, current.mime);
                 });
             });
         } catch (Exception ignored) { /* Invalid messages cannot allocate files. */ }
     }
+
+    void downloadHttp(String url, String userAgent, String disposition, String mime) {
+        if (closed) return;
+        if (processing || pendingFile != null || saving || pickerOutstanding || activeId != null) {
+            Toast.makeText(activity, "Conclua o download atual antes de iniciar outro.", Toast.LENGTH_LONG).show(); return;
+        }
+        try { HttpDownload.secureUri(url); }
+        catch (Exception error) { Toast.makeText(activity, "O download precisa usar uma conexão HTTPS.", Toast.LENGTH_LONG).show(); return; }
+        // Only the official site's cookies are copied; never share them with external redirects.
+        String cookie = RoutePolicy.officialOrigin(url) ? CookieManager.getInstance().getCookie(url) : null;
+        int captured = generation; processing = true; preview = false;
+        Toast.makeText(activity, "Preparando arquivo…", Toast.LENGTH_SHORT).show();
+        io.execute(() -> {
+            try {
+                HttpDownload.Result result = HttpDownload.fetch(url, cookie, userAgent, directory,
+                    () -> captured != generation, value -> (java.net.HttpURLConnection) value.openConnection());
+                handler.post(() -> {
+                    if (closed || captured != generation) { ioDelete(result.file); return; }
+                    processing = false; pendingFile = result.file;
+                    String type = result.mime == null ? mime : result.mime;
+                    if (type == null) type = "application/octet-stream";
+                    type = type.split(";", 2)[0].trim();
+                    String name = DownloadTransfer.safeName(URLUtil.guessFileName(result.url,
+                        result.disposition == null ? disposition : result.disposition, type));
+                    present(name, type);
+                });
+            } catch (Exception error) {
+                handler.post(() -> {
+                    if (closed || captured != generation) return;
+                    cancelTransfer();
+                    Toast.makeText(activity, "Não foi possível baixar o arquivo. Verifique a conexão, o acesso e o limite de 512 MB.", Toast.LENGTH_LONG).show();
+                });
+            }
+        });
+    }
+
+    private void present(String name, String mime) {
+        if (preview) {
+            try {
+                File folder = new File(directory, "preview-" + java.util.UUID.randomUUID());
+                if (!folder.mkdirs()) throw new java.io.IOException("Cache unavailable");
+                File target = new File(folder, name);
+                if (!pendingFile.renameTo(target)) { folder.delete(); throw new java.io.IOException("Move failed"); }
+                pendingFile = target;
+                Uri uri = FileProvider.getUriForFile(activity, activity.getPackageName() + ".documents", target);
+                Intent intent = new Intent(Intent.ACTION_VIEW).setDataAndType(uri, mime)
+                    .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                intent.setClipData(android.content.ClipData.newRawUri(name, uri));
+                activity.startActivity(intent);
+                previewUris.add(uri); previewFiles.add(target); pendingFile = null;
+                complete(true, null); return;
+            } catch (android.content.ActivityNotFoundException error) {
+                Toast.makeText(activity, "Escolha onde salvar para abrir o documento depois.", Toast.LENGTH_LONG).show();
+                // Fall back to the save picker if no viewer is installed.
+            } catch (Exception error) { complete(false, "Não foi possível abrir o documento."); return; }
+        }
+        handler.removeCallbacks(timeout); handler.postDelayed(timeout, 10 * 60 * 1000);
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE)
+            .setType(mime).putExtra(Intent.EXTRA_TITLE, name);
+        try { pickerOutstanding = true; activity.startActivityForResult(intent, SAVE_FILE); }
+        catch (Exception error) { pickerOutstanding = false; complete(false, "Nenhum aplicativo disponível para salvar arquivos."); }
+    }
+
+    private void ioDelete(File file) { if (file != null) file.delete(); }
 
     void onActivityResult(int result, Intent data) {
         pickerOutstanding = false;
@@ -136,9 +212,17 @@ final class WebDownloads {
                  OutputStream output = activity.getContentResolver().openOutputStream(destination, "wt")) {
                 if (output == null) throw new java.io.IOException("Destination unavailable");
                 byte[] buffer = new byte[64 * 1024]; int count;
-                while ((count = input.read(buffer)) != -1) output.write(buffer, 0, count);
+                while ((count = input.read(buffer)) != -1) {
+                    if (captured != generation) throw new java.io.IOException("Cancelled");
+                    output.write(buffer, 0, count);
+                }
+                if (captured != generation) throw new java.io.IOException("Cancelled");
                 output.flush(); success = true;
-            } catch (Exception ignored) { }
+            } catch (Exception ignored) {
+                // ACTION_CREATE_DOCUMENT creates a new destination; remove a partial document on failure.
+                try { android.provider.DocumentsContract.deleteDocument(activity.getContentResolver(), destination); }
+                catch (Exception unavailable) { /* Some providers do not support deletion. */ }
+            }
             finally { source.delete(); }
             boolean saved = success;
             handler.post(() -> {
@@ -151,9 +235,11 @@ final class WebDownloads {
 
     private void complete(boolean success, String error) {
         if (finishProxy != null) reply(finishProxy, finishRequest, success, error);
-        reset();
+        else if (!success && error != null) Toast.makeText(activity, error, Toast.LENGTH_LONG).show();
+        cancelTransfer();
     }
     private void reply(JavaScriptReplyProxy proxy, String request, boolean success, String error) {
+        if (!WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) return;
         try {
             JSONObject response = new JSONObject().put("requestId", request).put("ok", success);
             if (error != null) response.put("error", error);
@@ -161,13 +247,27 @@ final class WebDownloads {
         } catch (Exception ignored) { }
     }
     void reset() {
+        for (Uri uri : previewUris) activity.revokeUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        previewUris.clear();
+        for (File file : previewFiles) { file.delete(); file.getParentFile().delete(); }
+        previewFiles.clear();
+        cancelTransfer();
+    }
+    private void cancelTransfer() {
         generation++; processing = false; saving = false; activeId = null;
         handler.removeCallbacks(timeout);
         DownloadTransfer previous = transfer;
         File abandoned = pendingFile;
         pendingFile = null; finishProxy = null; finishRequest = null;
         transfer = new DownloadTransfer(directory);
-        io.execute(() -> { previous.close(); if (abandoned != null) abandoned.delete(); });
+        io.execute(() -> {
+            previous.close();
+            if (abandoned != null) {
+                abandoned.delete();
+                File parent = abandoned.getParentFile();
+                if (parent.getName().matches("preview-[a-f0-9-]{36}")) parent.delete();
+            }
+        });
     }
     void close() { reset(); closed = true; io.shutdown(); }
 }

@@ -81,4 +81,16 @@ public class DownloadTransferTest {
             assertEquals("application/octet-stream", transfer.mime);
         }
     }
+    @Test public void supportsUnknownLengthAndFilesLargerThanPreviousLimit() throws Exception {
+        File directory = temp.newFolder();
+        try (DownloadTransfer transfer = new DownloadTransfer(directory)) {
+            transfer.accept(begin(65L * 1024 * 1024));
+            transfer.close();
+            transfer.accept(begin(-1));
+            transfer.accept(chunk(0, new byte[]{1, 2, 3}));
+            assertTrue(transfer.accept(message("finish")));
+            File file = transfer.detach();
+            assertArrayEquals(new byte[]{1, 2, 3}, Files.readAllBytes(file.toPath()));
+        }
+    }
 }
