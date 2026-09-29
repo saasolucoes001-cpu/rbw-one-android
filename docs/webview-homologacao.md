@@ -9,7 +9,7 @@ Samsung Galaxy A25 (Android 16), pacote `br.com.rbwone.web`:
 - Microfone: a 1.0.7 falhava após conceder RECORD_AUDIO. O log Chromium registrava `Unable to select communication device!`. A 1.0.8 inclui MODIFY_AUDIO_SETTINGS; gravação de 17 segundos, geração de prévia, reprodução e descarte confirmados. Nenhuma mensagem de voz foi enviada.
 - Atualização 1.0.7 → 1.0.8 instalada por ADB com `-r`, mesmo certificado, sem desinstalação. Versão/código 1.0.8/9 confirmados e login preservado. Isso não certifica o fluxo completo do atualizador automático.
 - Release: 47 testes JVM, 35 testes Node aprovados; lint sem erros (12 avisos), APK release com Firebase e assinatura verificados.
-- Localização aguarda autorização específica para as consultas externas do fluxo de veículos. Demais itens da matriz abaixo continuam abertos quando não cobertos pelas evidências acima.
+- Localização: após autorização explícita do usuário para Open-Meteo/OpenStreetMap, a permissão temporária foi concedida. A primeira consulta usou a cidade padrão enquanto a permissão era respondida; após atualizar, o Android registrou FINE_LOCATION e a tela exibiu clima da cidade detectada. Nenhuma reserva ou vistoria foi criada. Demais itens da matriz abaixo continuam abertos quando não cobertos pelas evidências acima.
 
 ## Histórico da matriz anterior
 
