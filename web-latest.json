@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "packageName": "br.com.rbwone.web",
-  "versionCode": 9,
-  "versionName": "1.0.8",
-  "apkUrl": "https://saasolucoes001-cpu.github.io/rbw-one-android/rbw-one-web-1.0.8.apk",
-  "sha256": "f3f87d0d130f3de246a69ffac41f38587851c575cabd6e2faf4f726892d0c079",
-  "sizeBytes": 4210035,
+  "versionCode": 10,
+  "versionName": "1.0.9",
+  "apkUrl": "https://saasolucoes001-cpu.github.io/rbw-one-android/rbw-one-web-1.0.9.apk",
+  "sha256": "068f3ac0e6411e5fe62b4f91f2e12b62fc81e3f184295f2bef1c36397df8af8d",
+  "sizeBytes": 4210058,
   "minSdkVersion": 23,
-  "notice": "Atualização 1.0.8: corrige a gravação de áudio no chat Android, preservando login e configurações."
+  "notice": "Atualização 1.0.9: preserva a tela e os campos preenchidos ao girar o celular."
 }
