@@ -1,4 +1,29 @@
-# Homologação WebView — 1.0.8
+# Homologação WebView — 1.0.9
+
+## Atualização e rotação — 29/09/2026
+
+- Atualização real 1.0.8 → 1.0.9 iniciada pelo aviso do próprio aplicativo. Download, instalador Android e verificação Play Protect concluídos. O instalador confirmou a atualização; pacote instalado com versionName 1.0.9 e versionCode 10. Não houve instalação por ADB nessa jornada.
+- Sessão administrativa preservada após abrir a versão atualizada, sem novo login.
+- Na 1.0.8, girar a tela recriava o WebView e apagava o texto da busca. Na 1.0.9, o texto `inspec` permaneceu após retrato → paisagem → retrato. Isso valida a mudança de orientação, não a preservação após morte do processo.
+- Teclado aberto/fechado em dois ciclos: campo visível e área WebView retornando de `[0,77][1080,1108]` para `[0,77][1080,2298]`, sem folga residual. Rotação automática original restaurada.
+- Frontend/PWA: publicação do gestaoemp PR 945 confirmada pelo Lovable. Atualização web aceita também no Android. Modal Novo Teste verificado em produção a 320 px, com clientWidth e scrollWidth iguais a 279 px; nenhum teste ou registro criado.
+- APK público 1.0.9: 4.210.058 bytes, SHA-256 `068f3ac0e6411e5fe62b4f91f2e12b62fc81e3f184295f2bef1c36397df8af8d`. Build final: 47 testes JVM e 35 Node aprovados, lint sem erros (12 avisos).
+
+## Cobertura atual e pendências
+
+Os estados desta seção substituem os rótulos antigos da matriz histórica abaixo.
+
+| Jornada | Evidência e limite |
+| --- | --- |
+| Atualizador automático e sessão | Concluído para 1.0.8 → 1.0.9 no Galaxy A25/Android 16. |
+| Rotação, teclado e barras | Retrato/paisagem e dois ciclos de teclado concluídos com navegação por gestos; três botões e outros aparelhos ainda não verificados. |
+| PDF e XLSX | PDF salvo e aberto no leitor; XLSX salvo. Editor externo XLSX e anexos por outros perfis ainda não verificados. |
+| Cancelamento de download | Cancelamento e nova tentativa no seletor verificados; destino sem espaço não simulado no aparelho. |
+| Câmera, microfone e localização | Validações descritas abaixo concluídas; upload real ainda não realizado. |
+| Impressão | Leitura do PDF confirmada; impressão física e todas as variantes de iframe permanecem sem homologação. |
+| Autenticação | Sessão preservada nas atualizações; troca de conta/logout e outros perfis ainda não exercitados. |
+| Push | Não há nesta evidência certificação de entrega nos três estados: aberto, segundo plano e tela bloqueada. |
+| Rotas e portais externos | Revisão das telas iniciais não certifica todos os formulários, registros dinâmicos, perfis e serviços externos. Exigem dados/contas de teste apropriados. |
 
 ## Validação física em 29/09/2026
 
