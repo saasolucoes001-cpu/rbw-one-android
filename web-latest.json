@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "packageName": "br.com.rbwone.web",
-  "versionCode": 8,
-  "versionName": "1.0.7",
-  "apkUrl": "https://saasolucoes001-cpu.github.io/rbw-one-android/rbw-one-web-1.0.7.apk",
-  "sha256": "96d1b199d7a2c405bf91f978489cdedce8101f045184c7905a949f02e8bb73b1",
-  "sizeBytes": 4210008,
+  "versionCode": 9,
+  "versionName": "1.0.8",
+  "apkUrl": "https://saasolucoes001-cpu.github.io/rbw-one-android/rbw-one-web-1.0.8.apk",
+  "sha256": "f3f87d0d130f3de246a69ffac41f38587851c575cabd6e2faf4f726892d0c079",
+  "sizeBytes": 4210035,
   "minSdkVersion": 23,
-  "notice": "Atualização 1.0.7: corrige espaço duplicado acima e abaixo da interface no Android e preserva o ajuste ao teclado."
+  "notice": "Atualização 1.0.8: corrige a gravação de áudio no chat Android, preservando login e configurações."
 }
