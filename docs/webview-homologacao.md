@@ -1,5 +1,18 @@
 # Homologação WebView — 1.0.9
 
+## Complemento de arquivos e impressão — 29/09/2026
+
+- XLSX exportado anteriormente aberto no Microsoft Excel do Galaxy A25. Arquivo reconhecido e aba Financeiro exibida. A consulta exportada não tinha registros; a conta do Excel apresentou restrição própria de edição (somente leitura). Nenhum arquivo foi editado ou enviado para serviço externo.
+- PDF de nove páginas aberto no Samsung Notes, opção Imprimir acionada e serviço de impressão Android exibindo papel A4 e nove páginas. Destino Salvar como PDF concluído: novo arquivo local de 26.835 bytes, reaberto por um leitor PDF e confirmado com nove páginas.
+- Retorno ao RBW One preservou a sessão e o texto de busca. A jornada acima valida impressão pelo visualizador; não certifica uma impressora física, window.print do HTML ou todas as variantes de iframe.
+
+## Entrega push — 29/09/2026
+
+- Usuário autorizou explicitamente três notificações de homologação, destinadas somente à própria conta. Criadas apenas entradas identificadas como teste na central de notificações, vinculadas a uma rota já autorizada; nenhum chamado ou outro registro de negócio foi alterado.
+- Entrega confirmada pelo NotificationManager Android para os três IDs distintos: aplicativo em primeiro plano, aplicativo em segundo plano com launcher ativo e tela bloqueada com Keyguard ativo. A evidência não depende apenas da aceitação pelo FCM.
+- Fila do servidor registrou envio na primeira tentativa em todos os casos; tempo entre criação e envio de aproximadamente 54, 40 e 52 segundos, respectivamente, com agendamento de um minuto.
+- Canal Android `rbw_updates_bem_te_vi_v1`, importância 3 e visibilidade privada. Não houve medição auditiva nesta etapa; o som já havia sido confirmado pelo usuário anteriormente.
+
 ## Atualização e rotação — 29/09/2026
 
 - Atualização real 1.0.8 → 1.0.9 iniciada pelo aviso do próprio aplicativo. Download, instalador Android e verificação Play Protect concluídos. O instalador confirmou a atualização; pacote instalado com versionName 1.0.9 e versionCode 10. Não houve instalação por ADB nessa jornada.
@@ -17,12 +30,12 @@ Os estados desta seção substituem os rótulos antigos da matriz histórica aba
 | --- | --- |
 | Atualizador automático e sessão | Concluído para 1.0.8 → 1.0.9 no Galaxy A25/Android 16. |
 | Rotação, teclado e barras | Retrato/paisagem e dois ciclos de teclado concluídos com navegação por gestos; três botões e outros aparelhos ainda não verificados. |
-| PDF e XLSX | PDF salvo e aberto no leitor; XLSX salvo. Editor externo XLSX e anexos por outros perfis ainda não verificados. |
+| PDF e XLSX | PDF salvo e aberto no leitor; XLSX salvo e aberto no Excel. Edição depende da conta do Excel; anexos por outros perfis ainda não verificados. |
 | Cancelamento de download | Cancelamento e nova tentativa no seletor verificados; destino sem espaço não simulado no aparelho. |
 | Câmera, microfone e localização | Validações descritas abaixo concluídas; upload real ainda não realizado. |
-| Impressão | Leitura do PDF confirmada; impressão física e todas as variantes de iframe permanecem sem homologação. |
+| Impressão | PDF impresso pelo visualizador para outro PDF de nove páginas via serviço Android. Impressora física, HTML e todas as variantes de iframe permanecem sem homologação. |
 | Autenticação | Sessão preservada nas atualizações; troca de conta/logout e outros perfis ainda não exercitados. |
-| Push | Não há nesta evidência certificação de entrega nos três estados: aberto, segundo plano e tela bloqueada. |
+| Push | Entrega real confirmada no Galaxy A25: aberto, segundo plano e tela bloqueada. Não cobre encerramento forçado, longos períodos de economia de bateria ou todos os fabricantes. |
 | Rotas e portais externos | Revisão das telas iniciais não certifica todos os formulários, registros dinâmicos, perfis e serviços externos. Exigem dados/contas de teste apropriados. |
 
 ## Validação física em 29/09/2026
