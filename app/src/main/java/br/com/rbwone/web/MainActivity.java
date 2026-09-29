@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.media.AudioAttributes;
 import android.media.MediaPlayer;
@@ -291,6 +292,14 @@ public final class MainActivity extends Activity {
             if (replyProxy != null && officialPage()) emit("open", "route", route);
             else web.loadUrl(RoutePolicy.ORIGIN + route);
         }));
+    }
+    @Override public void onConfigurationChanged(@NonNull Configuration configuration) {
+        super.onConfigurationChanged(configuration);
+        // Keep the live document (including unsaved form state) while CSS adapts.
+        if (web != null) {
+            web.invalidate();
+            ViewCompat.requestApplyInsets(web.getRootView());
+        }
     }
     @Override protected void onStart() { super.onStart(); if (updater != null) updater.check(); }
     @Override protected void onStop() { if (updater != null) updater.pause(); super.onStop(); }

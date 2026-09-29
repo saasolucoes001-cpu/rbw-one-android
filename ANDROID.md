@@ -1,3 +1,9 @@
+# Preservação da tela ao girar — 1.0.9 / código 10
+
+Na 1.0.8, girar o Galaxy A25 recriava a Activity e recarregava o documento, apagando o texto digitado na pesquisa. A Activity agora trata mudanças de orientação, tamanho e teclado mantendo a WebView existente. `onConfigurationChanged` invalida a visualização e solicita a reaplicação dos recuos do sistema; o CSS continua adaptando a página ao espaço disponível.
+
+Referência: [preservação de estado da WebView no Android](https://developer.android.com/develop/adaptive-apps/cookbook/webview-state). A retenção durante rotação não garante recuperar campos após encerramento do processo pelo sistema.
+
 # Gravação de áudio — 1.0.8 / código 9
 
 Inclui `MODIFY_AUDIO_SETTINGS`, necessária para o WebView selecionar o dispositivo de comunicação durante `getUserMedia({ audio: true })`. No Galaxy A25 / Android 16, a versão 1.0.7 concedia `RECORD_AUDIO`, mas o Chromium registrava `Unable to select communication device!` e o chat não iniciava a gravação. A captura continua dependendo da permissão de microfone concedida pelo usuário e da origem oficial.
