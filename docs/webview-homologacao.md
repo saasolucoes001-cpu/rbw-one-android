@@ -1,5 +1,13 @@
 # Homologação WebView — 1.0.9
 
+## Impressão HTML e abertura de notificação — 29/09/2026
+
+- Toque em uma notificação Android de teste abriu o RBW One e a tela Gerenciar Chamados com a sessão preservada. A abertura automática do painel de detalhes do registro não foi confirmada nesta observação.
+- Na Ficha de Registro, Pré-visualizar → Imprimir abriu o serviço Android, mas o PDF original ficou limitado a uma página: o workspace com altura fixa recortava a ficha antes de Dados do Emprego.
+- Correção frontend gestaoemp PR 948 publicada, build `64fd3ab76f754bce4e1976c0e22c33047e403609`. As regras de impressão liberam a altura dos ancestrais da ficha e ocultam a navegação apenas durante a impressão dessa página.
+- Repetição no Android 1.0.9 após aceitar atualização web: PDF de 110.279 bytes e duas páginas, com Dados do Emprego e Local de Trabalho presentes. Última página renderizada e conferida visualmente. Nenhum registro de empregado foi criado ou alterado.
+- Durante a operação, permanência da tela ligada por USB foi ativada a pedido do usuário. Valor original 0 restaurado ao encerrar; tempo de bloqueio e autenticação não foram alterados.
+
 ## Complemento de arquivos e impressão — 29/09/2026
 
 - XLSX exportado anteriormente aberto no Microsoft Excel do Galaxy A25. Arquivo reconhecido e aba Financeiro exibida. A consulta exportada não tinha registros; a conta do Excel apresentou restrição própria de edição (somente leitura). Nenhum arquivo foi editado ou enviado para serviço externo.
@@ -33,7 +41,7 @@ Os estados desta seção substituem os rótulos antigos da matriz histórica aba
 | PDF e XLSX | PDF salvo e aberto no leitor; XLSX salvo e aberto no Excel. Edição depende da conta do Excel; anexos por outros perfis ainda não verificados. |
 | Cancelamento de download | Cancelamento e nova tentativa no seletor verificados; destino sem espaço não simulado no aparelho. |
 | Câmera, microfone e localização | Validações descritas abaixo concluídas; upload real ainda não realizado. |
-| Impressão | PDF impresso pelo visualizador para outro PDF de nove páginas via serviço Android. Impressora física, HTML e todas as variantes de iframe permanecem sem homologação. |
+| Impressão | PDF impresso pelo visualizador e HTML da Ficha de Registro impresso pelo WebView após correção de paginação. Impressora física, popups document.write e todas as variantes de iframe permanecem sem homologação. |
 | Autenticação | Sessão preservada nas atualizações; troca de conta/logout e outros perfis ainda não exercitados. |
 | Push | Entrega real confirmada no Galaxy A25: aberto, segundo plano e tela bloqueada. Não cobre encerramento forçado, longos períodos de economia de bateria ou todos os fabricantes. |
 | Rotas e portais externos | Revisão das telas iniciais não certifica todos os formulários, registros dinâmicos, perfis e serviços externos. Exigem dados/contas de teste apropriados. |
