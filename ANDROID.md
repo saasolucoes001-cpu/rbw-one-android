@@ -1,3 +1,9 @@
+# Gravação de áudio — 1.0.8 / código 9
+
+Inclui `MODIFY_AUDIO_SETTINGS`, necessária para o WebView selecionar o dispositivo de comunicação durante `getUserMedia({ audio: true })`. No Galaxy A25 / Android 16, a versão 1.0.7 concedia `RECORD_AUDIO`, mas o Chromium registrava `Unable to select communication device!` e o chat não iniciava a gravação. A captura continua dependendo da permissão de microfone concedida pelo usuário e da origem oficial.
+
+Referência: [gerenciamento de áudio no Chromium](https://chromium.googlesource.com/chromium/src/media/+/master/audio/android/audio_manager_android.cc).
+
 # Correção de espaçamento — 1.0.7 / código 8
 
 O contêiner já reserva os recuos de `systemBars`, `displayCutout` e `ime`. Depois de aplicar o padding, encaminha uma cópia dos insets com esses tipos zerados (`Insets.NONE`). Isso impede a segunda aplicação na WebView e preserva a entrega de atualizações quando o teclado fecha. Não usar `CONSUMED`, que pode impedir a limpeza de recuos antigos.

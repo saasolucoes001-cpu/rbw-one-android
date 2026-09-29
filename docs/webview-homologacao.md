@@ -1,4 +1,17 @@
-# Homologação WebView — 1.0.7
+# Homologação WebView — 1.0.8
+
+## Validação física em 29/09/2026
+
+Samsung Galaxy A25 (Android 16), pacote `br.com.rbwone.web`:
+
+- Câmera do autenticador: permissão solicitada, leitor pronto e cliente ativo confirmado pelo serviço de câmera Android. Captura encerrada sem importar contas. Testado na 1.0.7.
+- PDF de equipamentos: salvo pelo seletor Android e aberto no leitor Samsung Notes, que reconheceu nove páginas. Primeira página conferida visualmente. Dados e imagem de evidência permanecem locais.
+- Microfone: a 1.0.7 falhava após conceder RECORD_AUDIO. O log Chromium registrava `Unable to select communication device!`. A 1.0.8 inclui MODIFY_AUDIO_SETTINGS; gravação de 17 segundos, geração de prévia, reprodução e descarte confirmados. Nenhuma mensagem de voz foi enviada.
+- Atualização 1.0.7 → 1.0.8 instalada por ADB com `-r`, mesmo certificado, sem desinstalação. Versão/código 1.0.8/9 confirmados e login preservado. Isso não certifica o fluxo completo do atualizador automático.
+- Release: 47 testes JVM, 35 testes Node aprovados; lint sem erros (12 avisos), APK release com Firebase e assinatura verificados.
+- Localização aguarda autorização específica para as consultas externas do fluxo de veículos. Demais itens da matriz abaixo continuam abertos quando não cobertos pelas evidências acima.
+
+## Histórico da matriz anterior
 
 ## Correções implementadas
 
@@ -22,7 +35,7 @@ O último comando requer Playwright e Chrome; PLAYWRIGHT_MODULE pode indicar o c
 
 ## Pendências físicas
 
-O usuário optou por continuar sem celular. Não há aparelho conectado nem emulador instalado. Não declarar os fluxos abaixo aprovados com base nos testes JVM/Chromium.
+A matriz abaixo foi escrita antes da conexão do celular. Consulte a seção de 29/09/2026 para os testes físicos já realizados; os testes JVM/Chromium não substituem as jornadas restantes.
 
 | Jornada | Estado |
 | --- | --- |
