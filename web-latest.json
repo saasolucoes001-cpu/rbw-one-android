@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "packageName": "br.com.rbwone.web",
-  "versionCode": 7,
-  "versionName": "1.0.6",
-  "apkUrl": "https://saasolucoes001-cpu.github.io/rbw-one-android/rbw-one-web-1.0.6.apk",
-  "sha256": "2f61f47cf76ef8e65a5e418043270700570f72798489ad72cfbcbe4a44561430",
-  "sizeBytes": 4209996,
+  "versionCode": 8,
+  "versionName": "1.0.7",
+  "apkUrl": "https://saasolucoes001-cpu.github.io/rbw-one-android/rbw-one-web-1.0.7.apk",
+  "sha256": "96d1b199d7a2c405bf91f978489cdedce8101f045184c7905a949f02e8bb73b1",
+  "sizeBytes": 4210008,
   "minSdkVersion": 23,
-  "notice": "Atualização 1.0.6: downloads HTTPS, documentos, impressão HTML e arquivos até 512 MB. Validação física pendente."
+  "notice": "Atualização 1.0.7: corrige espaço duplicado acima e abaixo da interface no Android e preserva o ajuste ao teclado."
 }

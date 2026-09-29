@@ -77,8 +77,15 @@ public final class MainActivity extends Activity {
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
         LinearLayout root = new LinearLayout(this); root.setOrientation(LinearLayout.VERTICAL); root.setBackgroundColor(Color.WHITE);
         ViewCompat.setOnApplyWindowInsetsListener(root, (view, insets) -> {
-            Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout() | WindowInsetsCompat.Type.ime());
-            view.setPadding(bars.left, bars.top, bars.right, bars.bottom); return insets;
+            int handledTypes = WindowInsetsCompat.Type.systemBars()
+                    | WindowInsetsCompat.Type.displayCutout() | WindowInsetsCompat.Type.ime();
+            Insets bars = insets.getInsets(handledTypes);
+            view.setPadding(bars.left, bars.top, bars.right, bars.bottom);
+            // The native container already reserves this space. Forward zeroed values
+            // so WebView does not apply it again and still receives keyboard updates.
+            return new WindowInsetsCompat.Builder(insets)
+                    .setInsets(handledTypes, Insets.NONE)
+                    .build();
         });
         if (!BuildConfig.FIREBASE_CONFIGURED) addNotice(root, "Este aplicativo ainda precisa da configuração Firebase para receber notificações em segundo plano.");
         errorPanel = new LinearLayout(this); errorPanel.setOrientation(LinearLayout.VERTICAL); errorPanel.setPadding(24, 24, 24, 24); errorPanel.setVisibility(View.GONE);

@@ -1,4 +1,4 @@
-# Homologação WebView — 1.0.6
+# Homologação WebView — 1.0.7
 
 ## Correções implementadas
 
@@ -26,7 +26,9 @@ O usuário optou por continuar sem celular. Não há aparelho conectado nem emul
 
 | Jornada | Estado |
 | --- | --- |
-| Atualizar sobre 1.0.5, preservando login/preferências | Certificado comparado; instalação física pendente |
+| Atualizar sobre 1.0.6, preservando login/preferências | Mesmo certificado confirmado; instalação física pendente |
+| Barras superior/inferior com gestos e três botões; retrato/paisagem com recorte | Pendente em aparelho |
+| Abrir/fechar teclado repetidamente, sem folga residual e com campo visível | Pendente em aparelho |
 | PDF, XLSX e anexo reais por perfil | Pendente em aparelho com conta de teste |
 | Cancelamento, destino sem espaço e nova tentativa | Lógica testada; seletor físico pendente |
 | Impressão, visualizador e retorno ao app | Pendente em aparelho |

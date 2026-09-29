@@ -1,3 +1,11 @@
+# Correção de espaçamento — 1.0.7 / código 8
+
+O contêiner já reserva os recuos de `systemBars`, `displayCutout` e `ime`. Depois de aplicar o padding, encaminha uma cópia dos insets com esses tipos zerados (`Insets.NONE`). Isso impede a segunda aplicação na WebView e preserva a entrega de atualizações quando o teclado fecha. Não usar `CONSUMED`, que pode impedir a limpeza de recuos antigos.
+
+Referência: https://developer.android.com/develop/ui/views/layout/webapps/understand-window-insets
+
+A correção requer instalar o APK atualizado. Validar em aparelho com gestos, três botões, rotação e abertura/fechamento do teclado. As seções abaixo documentam as versões anteriores.
+
 # RBW One Android — código-fonte
 
 ## Estado atual — 28/09/2026
