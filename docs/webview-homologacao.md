@@ -1,4 +1,12 @@
-# Homologação WebView — 1.0.9
+# Homologação WebView — 1.0.10
+
+## Impressão em popup e Epson — 29/09/2026
+
+- Na 1.0.9, Gerar Assinatura → Imprimir abria a janela nativa, mas Imprimir / Salvar PDF não acionava o serviço Android. A espera por `onPageFinished` mantinha o pedido pendente.
+- Na 1.0.10, o mesmo fluxo com `Teste-RBW-Android` abriu o serviço e salvou PDF A4 de uma página (476.075 bytes). Documento renderizado: assinatura completa, sem recorte. Nenhum e-mail ou cadastro foi enviado.
+- Instalação 1.0.9 → 1.0.10 por ADB `-r`, mesmo certificado, login Lucas preservado. 47 testes JVM e 38 Node aprovados; lint zero erros, 12 avisos; actionlint aprovado.
+- Impressão física: o PDF anterior de duas páginas da Ficha de Registro, sem dados de funcionário, foi enviado pelo notebook à EPSON L3150 Series. Windows registrou duas páginas e o usuário confirmou o recebimento. Essa etapa não certifica impressão direta Android → Epson, nem a legibilidade física de todos os campos.
+- PDFs e imagens da validação permanecem locais. Não foram incluídos no repositório.
 
 ## Impressão HTML e abertura de notificação — 29/09/2026
 
@@ -41,7 +49,7 @@ Os estados desta seção substituem os rótulos antigos da matriz histórica aba
 | PDF e XLSX | PDF salvo e aberto no leitor; XLSX salvo e aberto no Excel. Edição depende da conta do Excel; anexos por outros perfis ainda não verificados. |
 | Cancelamento de download | Cancelamento e nova tentativa no seletor verificados; destino sem espaço não simulado no aparelho. |
 | Câmera, microfone e localização | Validações descritas abaixo concluídas; upload real ainda não realizado. |
-| Impressão | PDF impresso pelo visualizador e HTML da Ficha de Registro impresso pelo WebView após correção de paginação. Impressora física, popups document.write e todas as variantes de iframe permanecem sem homologação. |
+| Impressão | PDF pelo visualizador, Ficha de Registro pelo WebView e popup document.write da assinatura validados. Duas páginas recebidas na Epson via notebook. Impressão direta Android → Epson e demais variantes de iframe ainda não homologadas. |
 | Autenticação | Sessão preservada nas atualizações; troca de conta/logout e outros perfis ainda não exercitados. |
 | Push | Entrega real confirmada no Galaxy A25: aberto, segundo plano e tela bloqueada. Não cobre encerramento forçado, longos períodos de economia de bateria ou todos os fabricantes. |
 | Rotas e portais externos | Revisão das telas iniciais não certifica todos os formulários, registros dinâmicos, perfis e serviços externos. Exigem dados/contas de teste apropriados. |

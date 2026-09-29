@@ -25,7 +25,10 @@ final class WebPrinting {
     private Dialog dialog;
     private WebView popup;
     private PrintJob lastJob;
-    private boolean loading, printPending;
+    private boolean printPending;
+    private int printRequest;
+    // document.write popups do not reliably emit onPageFinished.
+    private static final String PRINT_READY = "Boolean(document.body && document.body.hasChildNodes() && document.readyState !== 'loading' && Array.from(document.images).every(function(image){return image.complete;}) && (!document.fonts || document.fonts.status === 'loaded'))";
     WebPrinting(Activity activity) { this.activity = activity; }
 
     void install(WebView web) {
@@ -46,7 +49,33 @@ final class WebPrinting {
     }
 
     void print(WebView web) {
-        if (web == popup && loading) { printPending = true; return; }
+        if (web == popup) {
+            if (!printPending) {
+                printPending = true;
+                awaitPopup(web, ++printRequest, 0);
+            }
+            return;
+        }
+        startPrint(web);
+    }
+
+    private void awaitPopup(WebView web, int request, int attempt) {
+        if (web != popup || request != printRequest || !printPending) return;
+        web.evaluateJavascript(PRINT_READY, ready -> {
+            if (web != popup || request != printRequest || !printPending) return;
+            if ("true".equals(ready)) {
+                printPending = false;
+                startPrint(web);
+            } else if (attempt < 100) {
+                web.postDelayed(() -> awaitPopup(web, request, attempt + 1), 100);
+            } else {
+                printPending = false;
+                Toast.makeText(activity, "O documento ainda está carregando. Tente imprimir novamente.", Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    private void startPrint(WebView web) {
         if (lastJob != null && !lastJob.isCompleted() && !lastJob.isCancelled() && !lastJob.isFailed()) return;
         try {
             PrintManager manager = (PrintManager) activity.getSystemService(Activity.PRINT_SERVICE);
@@ -60,7 +89,7 @@ final class WebPrinting {
     @android.annotation.SuppressLint("SetJavaScriptEnabled")
     boolean open(WebView opener, boolean userGesture, Message result) {
         if (!userGesture || !RoutePolicy.officialOrigin(opener.getUrl()) || popup != null) return false;
-        WebView child = new WebView(activity); popup = child; loading = true; printPending = false;
+        WebView child = new WebView(activity); popup = child; printPending = false; printRequest++;
         WebSettings settings = child.getSettings();
         settings.setJavaScriptEnabled(true); settings.setDomStorageEnabled(true);
         settings.setAllowFileAccess(false); settings.setAllowContentAccess(false);
@@ -75,7 +104,7 @@ final class WebPrinting {
         actions.addView(print, new LinearLayout.LayoutParams(0, -2, 1)); actions.addView(close);
         content.addView(actions); content.addView(child, new LinearLayout.LayoutParams(-1, 0, 1));
         window.setContentView(content);
-        window.setOnDismissListener(v -> { child.stopLoading(); child.destroy(); if (popup == child) { popup = null; dialog = null; printPending = false; } });
+        window.setOnDismissListener(v -> { if (popup == child) { popup = null; dialog = null; printPending = false; printRequest++; } child.stopLoading(); child.destroy(); });
         child.setWebViewClient(new WebViewClient() {
             @Override public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 String url = request.getUrl().toString();
@@ -89,11 +118,6 @@ final class WebPrinting {
                     }
                 }
                 return true;
-            }
-            @Override public void onPageStarted(WebView view, String url, android.graphics.Bitmap icon) { loading = true; }
-            @Override public void onPageFinished(WebView view, String url) {
-                loading = false;
-                if (printPending) { printPending = false; print(view); }
             }
         });
         child.setWebChromeClient(new WebChromeClient() {

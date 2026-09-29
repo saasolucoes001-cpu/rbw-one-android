@@ -1,3 +1,9 @@
+# Impressão em janela separada — 1.0.10 / código 11
+
+O botão Imprimir / Salvar PDF das janelas `document.write` não depende mais de `onPageFinished`, que não foi recebido no fluxo de assinatura de e-mail testado no Galaxy A25. Antes de chamar PrintManager, confere corpo do documento, imagens e fontes. A espera termina após aproximadamente dez segundos e permite tentar novamente. Fechar a janela invalida verificações pendentes.
+
+Testado no Galaxy A25 / Android 16: assinatura fictícia abriu o serviço de impressão e gerou PDF A4 de uma página, conferido visualmente. Instalação sobre 1.0.9 por ADB, mesmo certificado e sessão preservada. Não representa novo teste do atualizador automático ou impressão direta do telefone em impressora física.
+
 # Preservação da tela ao girar — 1.0.9 / código 10
 
 Na 1.0.8, girar o Galaxy A25 recriava a Activity e recarregava o documento, apagando o texto digitado na pesquisa. A Activity agora trata mudanças de orientação, tamanho e teclado mantendo a WebView existente. `onConfigurationChanged` invalida a visualização e solicita a reaplicação dos recuos do sistema; o CSS continua adaptando a página ao espaço disponível.

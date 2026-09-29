@@ -6,7 +6,7 @@ Canal independente de distribuição de APKs: https://saasolucoes001-cpu.github.
 
 Este repositório também contém o novo aplicativo nativo WebView no diretório `app`, com identificador **`br.com.rbwone.web`**, Firebase Cloud Messaging e som do RBW One. Consulte [ANDROID.md](ANDROID.md) para compilar, configurar Firebase e guardar a assinatura. O novo pacote é instalado em paralelo: não atualiza nem substitui os aplicativos distribuídos abaixo. Os arquivos históricos de distribuição permanecem preservados.
 
-O botão atual do RBW One usa [download.html](download.html), que consulta [web-latest.json](web-latest.json). A versão publicada é **1.0.9, código 10**, pacote `br.com.rbwone.web`. A página [inicial](index.html) mantém os downloads anteriores separados. Verifique os metadados e o APK com `node --test scripts/download.test.mjs`.
+O botão atual do RBW One usa [download.html](download.html), que consulta [web-latest.json](web-latest.json). A versão publicada é **1.0.10, código 11**, pacote `br.com.rbwone.web`. A página [inicial](index.html) mantém os downloads anteriores separados. Verifique os metadados e o APK com `node --test scripts/download.test.mjs`.
 
 ### Espaçamento das barras no Android — versão 1.0.7
 
