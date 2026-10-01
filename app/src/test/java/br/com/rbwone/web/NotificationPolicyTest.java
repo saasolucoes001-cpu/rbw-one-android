@@ -20,6 +20,8 @@ public class NotificationPolicyTest {
         for (String url : new String[]{"http://rbwone.com.br", "https://rbwone.com.br.evil.test", "https://rbwone.com.br@evil.test", "https://evil.test@rbwone.com.br", "https://rbwone.com.br:8443", "javascript:alert(1)", "file:///rbwone.com.br", "https://sub.rbwone.com.br"}) assertFalse(url, RoutePolicy.officialOrigin(url));
     }
     @Test public void notificationRoutesKeepPortalAndQueries() {
+        assertEquals("/fechadura", RoutePolicy.notificationRoute("/fechadura"));
+        assertEquals("/fechadura?evento=abc", RoutePolicy.notificationRoute("/fechadura?evento=abc"));
         assertEquals("/administrativo/iniciar-chamados?chamado=abc", RoutePolicy.notificationRoute("/iniciar-chamados?chamado=abc"));
         assertEquals("/colaborador/vagas", RoutePolicy.notificationRoute("/colaborador/vagas"));
         assertEquals("/administrativo", RoutePolicy.notificationRoute("/administrativo"));

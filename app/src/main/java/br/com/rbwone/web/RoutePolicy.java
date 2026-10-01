@@ -21,10 +21,10 @@ public final class RoutePolicy {
         if (value == null || value.length() > 2048 || !value.startsWith("/") || value.startsWith("//") || UNSAFE.matcher(value).find()) return null;
         String path = value.split("[?#]", 2)[0];
         for (String segment : path.split("/")) if (segment.equals(".") || segment.equals("..")) return null;
-        String canonical = PORTAL.matcher(value).find() ? value : "/administrativo" + value;
+        String canonical = path.equals("/fechadura") || PORTAL.matcher(value).find() ? value : "/administrativo" + value;
         try {
             URI uri = new URI(ORIGIN + canonical);
-            return officialOrigin(uri.toString()) && PORTAL.matcher(uri.getPath()).find() ? canonical : null;
+            return officialOrigin(uri.toString()) && (uri.getPath().equals("/fechadura") || PORTAL.matcher(uri.getPath()).find()) ? canonical : null;
         } catch (Exception ignored) { return null; }
     }
 
