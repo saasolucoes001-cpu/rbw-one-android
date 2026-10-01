@@ -282,13 +282,19 @@ public final class MainActivity extends Activity {
         if (!RoutePolicy.uuid(id) || captured == null || !captured.matches(user, sessionId, System.currentTimeMillis())) return;
         AsyncResult.supplyAsync(() -> {
             try {
-                JSONObject response = coordinator.api().request("verify_push", new JSONObject().put("installation_id", coordinator.store().installationId()).put("notification_id", id), captured.token);
-                if (!response.optBoolean("allowed") || !id.equals(response.optString("notification_id")) || !user.equals(response.optString("user_id")) || !sessionId.equals(response.optString("session_id"))) return null;
-                return RoutePolicy.notificationRoute(response.optString("route"));
+                // Resolve the current destination and dismiss atomically. A tray
+                // notice can already be read in the inbox; verify_push is only
+                // for deciding whether to deliver a new push.
+                JSONObject response = coordinator.api().request("open", new JSONObject().put("notification_id", id), captured.token);
+                return NotificationClickResult.route(response);
             } catch (Exception ignored) { return null; }
         }, network).thenAccept(route -> runOnUiThread(() -> {
             SessionRecord current = coordinator.store().read();
-            if (destroyed || route == null || current == null || !current.token.equals(captured.token) || !current.matches(user, sessionId, System.currentTimeMillis())) return;
+            if (destroyed || current == null || !current.token.equals(captured.token) || !current.matches(user, sessionId, System.currentTimeMillis())) return;
+            if (route == null) {
+                Toast.makeText(this, "Não foi possível abrir o aviso. Consulte as notificações no RBW One.", Toast.LENGTH_LONG).show();
+                return;
+            }
             if (replyProxy != null && officialPage()) emit("open", "route", route);
             else web.loadUrl(RoutePolicy.ORIGIN + route);
         }));

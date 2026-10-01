@@ -1,3 +1,9 @@
+# Notificações ao tocar — 1.0.11 / código 12
+
+O clique em um aviso do Android chama a operação `open` da API: o servidor valida sessão, destinatário e acesso atual ao registro, resolve o destino e limpa a notificação na mesma transação. Avisos já lidos que continuam na bandeja também podem abrir. A rota da campainha permanece `/fechadura`; ela não recebe o prefixo `/administrativo`. Em falhas, o app informa que o aviso deve ser consultado no painel. A navegação continua bloqueada após troca de sessão.
+
+Depende de notifications-api v5 e da migration `open_rbw_notifications` no projeto do sistema. Compilação release com Firebase e assinatura de produção preservados. Testes unitários Android (49 casos), lint e release aprovados. No Galaxy A25 / Android 16, instalada sobre 1.0.10 por ADB com o mesmo certificado e login preservado. Um Intent nativo de notificação existente foi entregue por ADB: abriu a tela Fechadura e o banco confirmou read_at e dismissed_at. Esse teste não representa novo envio FCM ou validação do atualizador automático.
+
 # Impressão em janela separada — 1.0.10 / código 11
 
 O botão Imprimir / Salvar PDF das janelas `document.write` não depende mais de `onPageFinished`, que não foi recebido no fluxo de assinatura de e-mail testado no Galaxy A25. Antes de chamar PrintManager, confere corpo do documento, imagens e fontes. A espera termina após aproximadamente dez segundos e permite tentar novamente. Fechar a janela invalida verificações pendentes.
