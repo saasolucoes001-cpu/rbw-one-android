@@ -32,15 +32,17 @@ public final class NotificationChannels {
         silent.setLockscreenVisibility(NotificationCompat.VISIBILITY_PRIVATE);
         manager.createNotificationChannel(bird); manager.createNotificationChannel(silent);
     }
-    public static void show(Context context, String id, String route, SessionRecord session) {
+    public static void show(Context context, String id, String route, SessionRecord session, String title, String body) {
         if (Build.VERSION.SDK_INT >= 33 && ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) return;
         Intent intent = new Intent(context, MainActivity.class).setAction("br.com.rbwone.web.OPEN_NOTIFICATION")
                 .setData(Uri.parse("rbwone://notification/" + id))
                 .putExtra("notification_id", id).putExtra("route", route).putExtra("user_id", session.userId).putExtra("session_id", session.sessionId)
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent pending = PendingIntent.getActivity(context, id.hashCode(), intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        NotificationText text = NotificationText.from(title, body);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, session.soundEnabled ? BIRD : SILENT)
-                .setSmallIcon(R.drawable.ic_notification).setContentTitle("RBW One").setContentText("Há uma nova notificação para você.")
+                .setSmallIcon(R.drawable.ic_notification).setContentTitle(text.title).setContentText(text.body)
+                .setStyle(new NotificationCompat.BigTextStyle().bigText(text.body))
                 .setContentIntent(pending).setAutoCancel(true).setOnlyAlertOnce(true).setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
                 .setCategory(NotificationCompat.CATEGORY_STATUS).setPriority(NotificationCompat.PRIORITY_DEFAULT);
         if (session.soundEnabled) builder.setSound(sound(context)); else builder.setSilent(true);

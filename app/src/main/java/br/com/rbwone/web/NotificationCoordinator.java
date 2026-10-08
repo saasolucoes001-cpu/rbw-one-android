@@ -137,11 +137,11 @@ public final class NotificationCoordinator {
         }, network);
     }
 
-    public synchronized boolean displayIfCurrent(SessionRecord captured, String notificationId, String route, String userId, String sessionId) {
+    public synchronized boolean displayIfCurrent(SessionRecord captured, String notificationId, String route, String userId, String sessionId, String title, String body) {
         SessionRecord current = store.read();
         if (current == null || !current.token.equals(captured.token) || !current.matches(userId, sessionId, System.currentTimeMillis()) || !permissionGranted()) return false;
         if (store.hasSeen(notificationId)) return false;
-        NotificationChannels.show(context, notificationId, route, current);
+        NotificationChannels.show(context, notificationId, route, current, title, body);
         store.remember(notificationId, System.currentTimeMillis());
         return true;
     }

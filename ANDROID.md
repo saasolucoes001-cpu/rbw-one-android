@@ -1,3 +1,7 @@
+# Notificações detalhadas — 1.0.12 / código 13
+
+Mostra o título e o resumo autorizados da central, por exemplo “Nova mensagem no chamado” e “Chamado #42. Há uma nova mensagem ou anexo para você consultar.” Textos maiores podem ser expandidos. Os detalhes vêm de `verify_push`, após validar conta, sessão, instalação e acesso atual; o texto do FCM não é usado. Mantém a checagem de sessão antes de exibir, deduplicação, canais de som e conteúdo privado na tela bloqueada. Depende da migration `android_notification_details`. Backend anterior usa texto genérico como fallback. Validação visual e entrega FCM em aparelho pendentes.
+
 # Notificações ao tocar — 1.0.11 / código 12
 
 O clique em um aviso do Android chama a operação `open` da API: o servidor valida sessão, destinatário e acesso atual ao registro, resolve o destino e limpa a notificação na mesma transação. Avisos já lidos que continuam na bandeja também podem abrir. A rota da campainha permanece `/fechadura`; ela não recebe o prefixo `/administrativo`. Em falhas, o app informa que o aviso deve ser consultado no painel. A navegação continua bloqueada após troca de sessão.

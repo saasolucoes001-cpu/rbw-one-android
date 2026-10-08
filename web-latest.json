@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "packageName": "br.com.rbwone.web",
-  "versionCode": 12,
-  "versionName": "1.0.11",
-  "apkUrl": "https://saasolucoes001-cpu.github.io/rbw-one-android/rbw-one-web-1.0.11.apk",
-  "sha256": "7950428ced1194bca1527ad7aaf8f49a810a1eaf887218343dce89ea834931f7",
-  "sizeBytes": 4210073,
+  "versionCode": 13,
+  "versionName": "1.0.12",
+  "apkUrl": "https://saasolucoes001-cpu.github.io/rbw-one-android/rbw-one-web-1.0.12.apk",
+  "sha256": "b445a50d3f5e910849c94ed70897432ff43c5835a47dd0c4aa7b65c82cd962ab",
+  "sizeBytes": 4210071,
   "minSdkVersion": 23,
-  "notice": "Atualização 1.0.11: corrige a abertura da campainha e limpa notificações ao tocar no aviso."
+  "notice": "Atualização 1.0.12: notificações com assunto, resumo e texto expandido."
 }

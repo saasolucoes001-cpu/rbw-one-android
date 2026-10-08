@@ -17,7 +17,7 @@ public final class NotificationDeliveryWorker extends Worker {
             JSONObject verified = coordinator.api().request("verify_push", new JSONObject().put("installation_id", coordinator.store().installationId()).put("notification_id", id), session.token);
             if (!verified.optBoolean("allowed") || !id.equals(verified.optString("notification_id")) || !user.equals(verified.optString("user_id")) || !sessionId.equals(verified.optString("session_id"))) return Result.success();
             String verifiedRoute = RoutePolicy.notificationRoute(verified.optString("route"));
-            if (verifiedRoute != null && !isStopped()) coordinator.displayIfCurrent(session, id, verifiedRoute, user, sessionId);
+            if (verifiedRoute != null && !isStopped()) coordinator.displayIfCurrent(session, id, verifiedRoute, user, sessionId, verified.optString("title"), verified.optString("body"));
             return Result.success();
         } catch (NotificationsApi.ApiException error) {
             if (error.status == 401 || error.status == 403) return Result.success();
