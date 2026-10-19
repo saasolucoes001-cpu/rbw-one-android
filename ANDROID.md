@@ -150,3 +150,20 @@ Versão 1.0.6 / código 7 mantém Firebase e o certificado existente. Downloads 
 Downloads gerados pelo site passam a usar streaming, até 512 MiB, incluindo respostas sem tamanho conhecido. Documentos abertos com window.open(blob:) são entregues a um visualizador Android com permissão temporária de leitura; sem visualizador, o app oferece salvar. Relatórios HTML em novas janelas recebem uma janela própria com Imprimir / Salvar PDF e Fechar; window.print() da origem oficial usa o serviço de impressão do Android.
 
 O teste scripts/web-downloads.browser.cjs usa Playwright e Chrome em um perfil isolado com respostas simuladas. Não acessa dados reais. Foram verificados cliques, revogação imediata de URL, integridade binária e bloqueio em origem externa. Ver a matriz atual de homologação para os testes físicos ainda pendentes.
+
+## Correção de permissões de mídia — 19/10/2026
+
+O código passa a conferir RECORD_AUDIO e CAMERA antes de pedir permissão ao
+Android. Se já concedidas, autoriza somente os recursos solicitados e conhecidos
+pela WebView da origem oficial; pedidos mistos solicitam apenas a permissão
+faltante. O resultado é revalidado no sistema, sem cache que sobreviva à revogação.
+Navegação e encerramento cancelam pedidos antigos. Pedidos nativos concorrentes
+não sobrescrevem a solicitação em andamento. Reprodução de áudio não exige
+novo gesto na WebView oficial; isso não concede captura do microfone.
+
+A atualização instalada depende de um novo APK assinado com a chave de produção
+existente e com a configuração Firebase vigente. A chave e o google-services.json
+não foram localizados no ambiente Linux ou no backup montado. O canal público
+permanece na versão 1.0.12; nenhuma chave substituta ou APK com assinatura
+diferente foi publicado. A correção de código exige compilação/validação Android
+e homologação no aparelho; não foram realizadas ligações nem alterados webhooks.

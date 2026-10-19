@@ -57,6 +57,7 @@ public final class MainActivity extends Activity {
     private final List<AsyncResult<JSONObject>> permissionWaiters = new ArrayList<>();
     private boolean askingNotifications;
     private PermissionRequest pendingWebPermission;
+    private boolean webPermissionInFlight;
     private GeolocationPermissions.Callback pendingLocation;
     private String pendingLocationOrigin;
     private ValueCallback<Uri[]> fileCallback;
@@ -95,7 +96,7 @@ public final class MainActivity extends Activity {
         web = new WebView(this); web.setId(View.generateViewId()); root.addView(web, new LinearLayout.LayoutParams(-1, 0, 1)); setContentView(root);
         WebSettings settings = web.getSettings(); settings.setJavaScriptEnabled(true); settings.setDomStorageEnabled(true);
         settings.setAllowFileAccess(false); settings.setAllowContentAccess(false); settings.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
-        settings.setMediaPlaybackRequiresUserGesture(true); settings.setSupportMultipleWindows(true);
+        settings.setMediaPlaybackRequiresUserGesture(false); settings.setSupportMultipleWindows(true);
         if (Build.VERSION.SDK_INT >= 26) settings.setSafeBrowsingEnabled(true);
         WebView.setWebContentsDebuggingEnabled(BuildConfig.DEBUG);
         CookieManager.getInstance().setAcceptCookie(true); CookieManager.getInstance().setAcceptThirdPartyCookies(web, false);
@@ -106,7 +107,7 @@ public final class MainActivity extends Activity {
                 if (request.isForMainFrame() && request.hasGesture()) openExternal(request.getUrl());
                 return true;
             }
-            @Override public void onPageStarted(WebView view, String url, android.graphics.Bitmap favicon) { replyProxy = null; downloads.reset(); errorPanel.setVisibility(View.GONE); }
+            @Override public void onPageStarted(WebView view, String url, android.graphics.Bitmap favicon) { cancelWebPermission(); replyProxy = null; downloads.reset(); errorPanel.setVisibility(View.GONE); }
             @Override public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
                 if (request.isForMainFrame()) errorPanel.setVisibility(View.VISIBLE);
             }
@@ -228,26 +229,33 @@ public final class MainActivity extends Activity {
     }
     private void stopPreview() { if (preview != null) { preview.release(); preview = null; } }
 
+    private void cancelWebPermission() {
+        if (pendingWebPermission != null) { pendingWebPermission.deny(); pendingWebPermission = null; }
+    }
+    private boolean currentMediaGrant(PermissionRequest request) {
+        if (destroyed || !officialPage() || !RoutePolicy.officialOrigin(request.getOrigin().toString())) return false;
+        try { return WebMediaPermissions.missing(request.getResources(), this::hasPermission).isEmpty(); }
+        catch (IllegalArgumentException invalid) { return false; }
+    }
     private void handleWebPermission(PermissionRequest request) {
-        if (!RoutePolicy.officialOrigin(request.getOrigin().toString()) || !officialPage() || pendingWebPermission != null) { request.deny(); return; }
-        List<String> permissions = new ArrayList<>();
-        for (String resource : request.getResources()) {
-            if (PermissionRequest.RESOURCE_VIDEO_CAPTURE.equals(resource)) permissions.add(Manifest.permission.CAMERA);
-            else if (PermissionRequest.RESOURCE_AUDIO_CAPTURE.equals(resource)) permissions.add(Manifest.permission.RECORD_AUDIO);
-            else { request.deny(); return; }
-        }
-        if (permissions.isEmpty()) { request.deny(); return; }
-        pendingWebPermission = request;
-        ActivityCompat.requestPermissions(this, permissions.toArray(new String[0]), WEB_PERMISSION);
+        if (destroyed || !RoutePolicy.officialOrigin(request.getOrigin().toString()) || !officialPage()) { request.deny(); return; }
+        final List<String> missing;
+        try { missing = WebMediaPermissions.missing(request.getResources(), this::hasPermission); }
+        catch (IllegalArgumentException invalid) { request.deny(); return; }
+        if (missing.isEmpty()) { request.grant(request.getResources()); return; }
+        if (webPermissionInFlight) { request.deny(); return; }
+        pendingWebPermission = request; webPermissionInFlight = true;
+        ActivityCompat.requestPermissions(this, missing.toArray(new String[0]), WEB_PERMISSION);
     }
     @Override public void onRequestPermissionsResult(int code, @NonNull String[] permissions, @NonNull int[] results) {
         super.onRequestPermissionsResult(code, permissions, results);
         if (code == NOTIFICATION_PERMISSION) finishNotificationPermission();
-        if (code == WEB_PERMISSION && pendingWebPermission != null) {
+        if (code == WEB_PERMISSION) {
+            webPermissionInFlight = false;
             PermissionRequest request = pendingWebPermission; pendingWebPermission = null;
-            boolean allow = officialPage() && RoutePolicy.officialOrigin(request.getOrigin().toString()) && results.length > 0;
-            for (int result : results) allow &= result == PackageManager.PERMISSION_GRANTED;
-            if (allow) request.grant(request.getResources()); else request.deny();
+            if (request != null) {
+                if (currentMediaGrant(request)) request.grant(request.getResources()); else request.deny();
+            }
         }
         if (code == LOCATION_PERMISSION && pendingLocation != null) {
             pendingLocation.invoke(pendingLocationOrigin, officialPage() && (hasPermission(Manifest.permission.ACCESS_FINE_LOCATION) || hasPermission(Manifest.permission.ACCESS_COARSE_LOCATION)), false);
@@ -319,7 +327,7 @@ public final class MainActivity extends Activity {
         if (printing != null) printing.close();
         for (AsyncResult<JSONObject> pending : permissionWaiters) pending.completeExceptionally(new IllegalStateException("Tela encerrada.")); permissionWaiters.clear();
         if (fileCallback != null) fileCallback.onReceiveValue(null);
-        if (pendingWebPermission != null) pendingWebPermission.deny();
+        cancelWebPermission();
         if (pendingLocation != null) pendingLocation.invoke(pendingLocationOrigin, false, false);
         stopPreview();
         if (web != null) { web.stopLoading(); web.destroy(); }
