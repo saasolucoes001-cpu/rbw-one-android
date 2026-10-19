@@ -167,3 +167,8 @@ não foram localizados no ambiente Linux ou no backup montado. O canal público
 permanece na versão 1.0.12; nenhuma chave substituta ou APK com assinatura
 diferente foi publicado. A correção de código exige compilação/validação Android
 e homologação no aparelho; não foram realizadas ligações nem alterados webhooks.
+
+Validação automatizada da correção: commit
+46a0517cedd1d2caf1b97b08a87d077a21929bf4, workflow Android source checks
+39322798415 concluído com sucesso (testes JVM, lintDebug e assembleDebug).
+A homologação em aparelho físico permanece pendente. A versão distribuída não mudou.
