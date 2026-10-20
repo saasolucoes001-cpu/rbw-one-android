@@ -7,7 +7,7 @@ import { runInNewContext } from 'node:vm';
 const root = new URL('../', import.meta.url);
 const html = await readFile(new URL('download.html', root), 'utf8');
 const script = html.match(/<script type="module">([\s\S]*?)<\/script>/)[1];
-const release = JSON.parse(await readFile(new URL('web-latest.json', root), 'utf8'));
+const release = JSON.parse(await readFile(new URL('web-v2-latest.json', root), 'utf8'));
 const origin = 'https://saasolucoes001-cpu.github.io';
 
 async function openPage({ manifest = release, failed = false, offline = false, invalidJson = false, timeout = false, supportsAbort = true } = {}) {
@@ -39,9 +39,9 @@ async function openPage({ manifest = release, failed = false, offline = false, i
 test('APK payload matches release size, SHA-256 and unique first-party path', async () => {
   const url = new URL(release.apkUrl);
   assert.equal(url.origin, origin);
-  assert.equal(url.pathname, '/rbw-one-android/rbw-one-web-1.0.12.apk');
+  assert.equal(url.pathname, '/rbw-one-android/rbw-one-web-1.0.13.apk');
   assert.equal(release.packageName, 'br.com.rbwone.web');
-  assert.equal(release.versionCode, 13);
+  assert.equal(release.versionCode, 14);
   const apk = await readFile(new URL(url.pathname.split('/').at(-1), root));
   assert.equal(apk.length, release.sizeBytes);
   assert.equal(createHash('sha256').update(apk).digest('hex'), release.sha256);
@@ -66,7 +66,7 @@ test('valid manifest exposes only the new download with integrity and no-store f
   assert.equal(page.elements.retry.hidden, true);
   assert.match(page.elements.integrity.textContent, new RegExp(release.sha256));
   assert.equal(page.elements.notice.textContent, release.notice);
-  assert.match(page.requests[0].url, /^\.\/web-latest\.json\?t=\d+$/);
+  assert.match(page.requests[0].url, /^\.\/web-v2-latest\.json\?t=\d+$/);
   assert.equal(page.requests[0].options.cache, 'no-store');
   assert.equal(page.timer(), null);
 });
@@ -125,3 +125,12 @@ test('landing page preserves explicit legacy links, fallback anchor and hidden-b
   assert.match(html, /href="\.\/index\.html#versoes-anteriores"/);
   assert.match(html, /\[hidden\]\{display:none!important\}/);
 });
+
+ test('new signing generation keeps old installed clients on their original channel', async () => {
+  const legacy = JSON.parse(await readFile(new URL('web-latest.json', root), 'utf8'));
+  assert.equal(legacy.versionCode, 13);assert.equal(legacy.versionName, '1.0.12');
+  assert.equal(legacy.sha256, 'b445a50d3f5e910849c94ed70897432ff43c5835a47dd0c4aa7b65c82cd962ab');
+  assert.match(html, /desinstale-a antes/);assert.match(html, /Nova instalação/);
+  const source=await readFile(new URL('app/src/main/java/br/com/rbwone/web/UpdateRelease.java',root),'utf8');
+  assert.match(source,/web-v2-latest\.json/);
+ });

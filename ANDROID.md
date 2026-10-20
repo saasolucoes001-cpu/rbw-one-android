@@ -172,3 +172,36 @@ Validação automatizada da correção: commit
 46a0517cedd1d2caf1b97b08a87d077a21929bf4, workflow Android source checks
 39322798415 concluído com sucesso (testes JVM, lintDebug e assembleDebug).
 A homologação em aparelho físico permanece pendente. A versão distribuída não mudou.
+
+
+## Nova instalação assinada — 1.0.13 / código 14 (20/10/2026)
+
+Nova chave RSA-4096, sem vínculo de rotação com a chave antiga indisponível.
+O pacote continua br.com.rbwone.web; a 1.0.12 deve ser desinstalada primeiro.
+A página download.html explica o novo login e a remoção de dados locais.
+O manifesto web-latest.json antigo é preservado. A partir desta geração,
+UpdateRelease.MANIFEST aponta web-v2-latest.json, mantendo a conferência
+obrigatória de pacote, tamanho, hash e certificado instalado em toda atualização.
+
+A configuração pública Firebase existente foi reconstruída dos recursos do APK
+1.0.12, preservando projeto, App ID, remetente FCM e API key pública. Ela permanece
+fora do Git e foi incluída no backup criptografado da assinatura. Nenhuma
+credencial privilegiada, função Supabase ou webhook foi alterado.
+
+Material privado no Linux: ~/.local/share/rbw-one/android-signing/production-20261020/
+(diretórios 0700, arquivos privados 0600). Inclui keystore PKCS12, credenciais,
+configuração Firebase e certificado. O backup autenticado AES-256-GCM/scrypt fica
+no dispositivo externo Backup, pasta RBW One/Android. O código de recuperação
+é entregue separadamente para guardar em um cofre independente. Não enviar
+chave, senha ou código ao Git, logs ou chats públicos.
+
+Para restaurar: instalar a biblioteca Python cryptography e executar
+`python3 scripts/restore-signing-backup.py BACKUP DESTINO_NOVO`.
+O programa solicita o código sem eco, autentica e valida o arquivo, recusa caminhos
+inesperados ou destino existente e reescreve o caminho local da chave para o novo
+computador. Não depende de DPAPI ou do Windows anterior.
+
+Para compilar: restaurar google-services.json em app/ e executar
+`python3 scripts/build-signed-linux.py --credentials ARQUIVO_PRIVADO --java-home JDK17 --sdk ANDROID_SDK`.
+As senhas passam somente por variáveis de ambiente do processo Gradle. A versão
+deve crescer e a mesma chave deve ser usada nas atualizações desta geração.

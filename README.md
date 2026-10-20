@@ -6,7 +6,18 @@ Canal independente de distribuição de APKs: https://saasolucoes001-cpu.github.
 
 Este repositório também contém o novo aplicativo nativo WebView no diretório `app`, com identificador **`br.com.rbwone.web`**, Firebase Cloud Messaging e som do RBW One. Consulte [ANDROID.md](ANDROID.md) para compilar, configurar Firebase e guardar a assinatura. O novo pacote é instalado em paralelo: não atualiza nem substitui os aplicativos distribuídos abaixo. Os arquivos históricos de distribuição permanecem preservados.
 
-O botão atual do RBW One usa [download.html](download.html), que consulta [web-latest.json](web-latest.json). A versão publicada é **1.0.12, código 13**, pacote `br.com.rbwone.web`. A página [inicial](index.html) mantém os downloads anteriores separados. Verifique os metadados e o APK com `node --test scripts/download.test.mjs`.
+O botão atual do RBW One usa [download.html](download.html), que consulta [web-v2-latest.json](web-v2-latest.json). A nova instalação publicada é **1.0.13, código 14**, pacote `br.com.rbwone.web`. A página [inicial](index.html) mantém os downloads anteriores separados. Verifique os metadados e o APK com `node --test scripts/download.test.mjs`.
+
+### Nova assinatura — 1.0.13
+
+Corrige pedidos repetidos de microfone já autorizado e reprodução de áudio na
+WebView. A chave anterior ficou indisponível após a migração do computador.
+Esta versão usa uma nova assinatura: é preciso desinstalar a 1.0.12 ou anterior
+antes de instalar e entrar novamente. A desinstalação remove dados locais.
+O canal antigo `web-latest.json` permanece na 1.0.12 para não oferecer uma
+atualização incompatível; as próximas atualizações da nova instalação usam
+`web-v2-latest.json`, com a nova chave preservada e backup criptografado testado.
+Não foram realizadas ligações nem alterados webhooks.
 
 ### Espaçamento das barras no Android — versão 1.0.7
 

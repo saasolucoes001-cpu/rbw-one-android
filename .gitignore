@@ -8,3 +8,7 @@ keystore.properties
 .idea/
 *.iml
 captures/
+
+*.p12
+
+__pycache__/

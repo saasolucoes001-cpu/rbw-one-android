@@ -10,7 +10,7 @@ import java.util.function.BooleanSupplier;
 
 /** The public channel is untrusted input, never a source of credentials or arbitrary URLs. */
 public final class UpdateRelease {
-    public static final String MANIFEST = "https://saasolucoes001-cpu.github.io/rbw-one-android/web-latest.json";
+    public static final String MANIFEST = "https://saasolucoes001-cpu.github.io/rbw-one-android/web-v2-latest.json";
     public final int versionCode, minSdk;
     public final String versionName, apkUrl, sha256;
     public final long size;

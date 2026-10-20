@@ -12,6 +12,7 @@
 <main>
 <h1>RBW One para Android</h1>
 <p>Aplicativo com central de notificações e som do RBW One.</p>
+<p><strong>Nova instalação — assinatura renovada.</strong> Se você usa a versão 1.0.12 ou anterior, desinstale-a antes de instalar este APK. Será necessário entrar novamente e autorizar os recursos no primeiro uso. A desinstalação remove os dados locais do aplicativo.</p>
 <p id="status" role="status" aria-live="polite">Consultando a versão disponível…</p>
 <p id="notice"></p>
 <p><a id="download" class="download" hidden>Baixar APK</a></p>
@@ -39,7 +40,7 @@ async function loadRelease() {
   const controller = typeof AbortController === "function" ? new AbortController() : null;
   let timeout;
   try {
-    const request = fetch("./web-latest.json?t=" + Date.now(), {cache:"no-store", ...(controller ? {signal:controller.signal} : {})})
+    const request = fetch("./web-v2-latest.json?t=" + Date.now(), {cache:"no-store", ...(controller ? {signal:controller.signal} : {})})
       .then(response => { if (!response.ok) throw Error("Manifesto indisponível"); return response.json(); });
     const release = await Promise.race([request, new Promise((_, reject) => {
       timeout = setTimeout(() => { controller?.abort(); reject(Error("Tempo esgotado")); }, 10000);
