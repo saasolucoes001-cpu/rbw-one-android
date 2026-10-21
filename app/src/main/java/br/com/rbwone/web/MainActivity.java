@@ -53,6 +53,14 @@ public final class MainActivity extends Activity {
     private LinearLayout errorPanel;
     private NotificationCoordinator coordinator;
     private JavaScriptReplyProxy replyProxy;
+    private JavaScriptReplyProxy phoneReplyProxy;
+    private PhoneCallAlerts phoneCalls;
+    private PhoneCallState.Action pendingPhoneAction;
+    private PhoneCallRequest pendingPhonePermission;
+    private JavaScriptReplyProxy pendingPhonePermissionProxy;
+    private boolean resumed;
+    private boolean notificationLeaseRefreshPending;
+    private long nextNotificationLeaseRefreshAt;
     private final ExecutorService network = Executors.newSingleThreadExecutor();
     private final List<AsyncResult<JSONObject>> permissionWaiters = new ArrayList<>();
     private boolean askingNotifications;
@@ -75,6 +83,7 @@ public final class MainActivity extends Activity {
         downloads = new WebDownloads(this);
         printing = new WebPrinting(this);
         coordinator = ((RbwApplication) getApplication()).notifications();
+        phoneCalls = new PhoneCallAlerts(this);
         coordinator.addListener(statusListener);
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
         LinearLayout root = new LinearLayout(this); root.setOrientation(LinearLayout.VERTICAL); root.setBackgroundColor(Color.WHITE);
@@ -107,7 +116,7 @@ public final class MainActivity extends Activity {
                 if (request.isForMainFrame() && request.hasGesture()) openExternal(request.getUrl());
                 return true;
             }
-            @Override public void onPageStarted(WebView view, String url, android.graphics.Bitmap favicon) { cancelWebPermission(); replyProxy = null; downloads.reset(); errorPanel.setVisibility(View.GONE); }
+            @Override public void onPageStarted(WebView view, String url, android.graphics.Bitmap favicon) { cancelWebPermission(); replyProxy = null; phoneReplyProxy = null; pendingPhoneAction = null; pendingPhonePermission = null; pendingPhonePermissionProxy = null; phoneCalls.reset(); downloads.reset(); errorPanel.setVisibility(View.GONE); }
             @Override public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
                 if (request.isForMainFrame()) errorPanel.setVisibility(View.VISIBLE);
             }
@@ -150,9 +159,75 @@ public final class MainActivity extends Activity {
                 try { handleBridge(BridgeRequest.parse(message.getData()), proxy); }
                 catch (Exception ignored) { /* Invalid or unbounded requests cannot reach privileged actions. */ }
             });
+            WebViewCompat.addWebMessageListener(web, "RBWPhoneCalls", Collections.singleton(RoutePolicy.ORIGIN), (view, message, sourceOrigin, isMainFrame, proxy) -> {
+                if (!isMainFrame || !RoutePolicy.officialOrigin(sourceOrigin.toString()) || !officialPage()) return;
+                phoneReplyProxy = proxy;
+                try { handlePhoneBridge(PhoneCallRequest.parse(message.getData()), proxy); }
+                catch (Exception ignored) { /* Invalid messages never reach native call controls. */ }
+            });
         } else addNotice(root, "Atualize o Android System WebView para ativar as notificações deste aplicativo.");
         if (savedInstanceState == null || web.restoreState(savedInstanceState) == null) web.loadUrl(RoutePolicy.ORIGIN);
+        handlePhoneIntent(getIntent());
         handleNotificationIntent(getIntent());
+    }
+
+    private void maybeRefreshNotificationLease() {
+        if (coordinator == null || notificationLeaseRefreshPending || !coordinator.permissionGranted()) return;
+        SessionRecord record = coordinator.store().read();
+        long now = System.currentTimeMillis(), elapsed = android.os.SystemClock.elapsedRealtime();
+        if (record == null || record.verified(now + 86_400_000L) || elapsed < nextNotificationLeaseRefreshAt
+                || !coordinator.status().optBoolean("configured")) return;
+        // A push lease is not a login deadline. Revalidate the stored session online when returning to the app.
+        nextNotificationLeaseRefreshAt = elapsed + 60_000L;
+        notificationLeaseRefreshPending = true;
+        coordinator.refresh(null).whenComplete((ignored, error) -> runOnUiThread(() -> notificationLeaseRefreshPending = false));
+    }
+    private void handlePhoneBridge(PhoneCallRequest request, JavaScriptReplyProxy proxy) {
+        if (request.action.equals("sync")) phoneCalls.sync(request);
+        else if (request.action.equals("clear")) phoneCalls.clear(request.ownerKey);
+        if (request.action.equals("requestPermission")) {
+            if (!resumed) { replyPhone(request, proxy, false); return; }
+            // The web UI calls this after a gesture. Permission replies never wait for Firebase registration.
+            if (coordinator.permissionGranted()) { replyPhone(request, proxy, true); return; }
+            if (pendingPhonePermission != null) { replyPhone(request, proxy, false); return; }
+            pendingPhonePermission = request; pendingPhonePermissionProxy = proxy;
+            requestNotifications();
+            if (!askingNotifications) finishPhonePermission();
+        } else replyPhone(request, proxy, true);
+    }
+    private void finishPhonePermission() {
+        if (pendingPhonePermission == null) return;
+        PhoneCallRequest request = pendingPhonePermission;
+        JavaScriptReplyProxy proxy = pendingPhonePermissionProxy;
+        pendingPhonePermission = null; pendingPhonePermissionProxy = null;
+        replyPhone(request, proxy, true);
+    }
+    private void replyPhone(PhoneCallRequest request, JavaScriptReplyProxy proxy, boolean ok) {
+        if (destroyed || proxy != phoneReplyProxy || !officialPage() || !WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) return;
+        try {
+            JSONObject reply = new JSONObject().put("requestId", request.id).put("ok", ok);
+            if (ok) reply.put("result", phoneCalls.status(coordinator.permission()));
+            else reply.put("error", "Não foi possível habilitar o aviso de chamada.");
+            proxy.postMessage(reply.toString());
+            dispatchPhoneAction();
+        } catch (Exception ignored) { }
+    }
+    private void handlePhoneIntent(Intent intent) {
+        if (phoneCalls == null) return;
+        PhoneCallState.Action action = phoneCalls.takeIntent(intent);
+        if (action != null) pendingPhoneAction = action;
+        dispatchPhoneAction();
+    }
+    private void dispatchPhoneAction() {
+        if (!resumed || destroyed || pendingPhoneAction == null || phoneReplyProxy == null || !officialPage()
+                || !WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) return;
+        PhoneCallState.Action action = pendingPhoneAction;
+        if (!phoneCalls.isOwner(action.ownerKey)) { pendingPhoneAction = null; return; }
+        try {
+            phoneReplyProxy.postMessage(new JSONObject().put("event", "callAction").put("action", action.action)
+                    .put("ownerKey", action.ownerKey).put("callId", action.callId).toString());
+            pendingPhoneAction = null;
+        } catch (Exception ignored) { /* The pending action remains local until this live document is ready. */ }
     }
 
     private void addNotice(LinearLayout parent, String text) { TextView notice = new TextView(this); notice.setPadding(16, 12, 16, 12); notice.setText(text); notice.setBackgroundColor(0xfffff2c6); parent.addView(notice); }
@@ -164,10 +239,10 @@ public final class MainActivity extends Activity {
         switch (request.action) {
             case "setSession":
                 SessionRecord previous = coordinator.store().read();
-                if (previous != null && !previous.token.equals(request.payload.optString("sessionToken"))) { downloads.reset(); printing.close(); }
+                if (previous != null && !previous.token.equals(request.payload.optString("sessionToken"))) { phoneCalls.reset(); pendingPhoneAction = null; downloads.reset(); printing.close(); }
                 if (!request.payload.optBoolean("soundEnabled") || previous == null || !previous.token.equals(request.payload.optString("sessionToken"))) stopPreview();
                 result = coordinator.setSession(request.payload.optString("sessionToken"), request.payload.optBoolean("soundEnabled")); break;
-            case "clear": stopPreview(); downloads.reset(); printing.close(); result = coordinator.clear(); break;
+            case "clear": phoneCalls.reset(); pendingPhoneAction = null; stopPreview(); downloads.reset(); printing.close(); result = coordinator.clear(); break;
             case "getStatus": result = AsyncResult.completedFuture(coordinator.status()); break;
             case "requestPermission": result = requestNotifications(); break;
             case "previewSound":
@@ -249,7 +324,7 @@ public final class MainActivity extends Activity {
     }
     @Override public void onRequestPermissionsResult(int code, @NonNull String[] permissions, @NonNull int[] results) {
         super.onRequestPermissionsResult(code, permissions, results);
-        if (code == NOTIFICATION_PERMISSION) finishNotificationPermission();
+        if (code == NOTIFICATION_PERMISSION) { finishNotificationPermission(); finishPhonePermission(); }
         if (code == WEB_PERMISSION) {
             webPermissionInFlight = false;
             PermissionRequest request = pendingWebPermission; pendingWebPermission = null;
@@ -281,7 +356,7 @@ public final class MainActivity extends Activity {
         try { startActivity(new Intent(Intent.ACTION_VIEW, uri).addCategory(Intent.CATEGORY_BROWSABLE)); }
         catch (ActivityNotFoundException ignored) { Toast.makeText(this, "Nenhum aplicativo disponível para abrir este link.", Toast.LENGTH_SHORT).show(); }
     }
-    @Override protected void onNewIntent(Intent intent) { super.onNewIntent(intent); setIntent(intent); handleNotificationIntent(intent); }
+    @Override protected void onNewIntent(Intent intent) { super.onNewIntent(intent); setIntent(intent); handlePhoneIntent(intent); handleNotificationIntent(intent); }
     private void handleNotificationIntent(Intent intent) {
         if (intent == null || !"br.com.rbwone.web.OPEN_NOTIFICATION".equals(intent.getAction())) return;
         String id = intent.getStringExtra("notification_id"), user = intent.getStringExtra("user_id"), sessionId = intent.getStringExtra("session_id");
@@ -317,11 +392,13 @@ public final class MainActivity extends Activity {
     }
     @Override protected void onStart() { super.onStart(); if (updater != null) updater.check(); }
     @Override protected void onStop() { if (updater != null) updater.pause(); super.onStop(); }
-    @Override protected void onResume() { super.onResume(); if (updater != null) updater.resume(); if (coordinator != null) { coordinator.emit(); if (askingNotifications) finishNotificationPermission(); } }
+    @Override protected void onResume() { super.onResume(); resumed = true; if (phoneCalls != null) phoneCalls.setForeground(true); if (updater != null) updater.resume(); if (coordinator != null) { coordinator.emit(); if (askingNotifications) { finishNotificationPermission(); finishPhonePermission(); } } maybeRefreshNotificationLease(); dispatchPhoneAction(); }
+    @Override protected void onPause() { resumed = false; if (phoneCalls != null) phoneCalls.setForeground(false); super.onPause(); }
     @Override protected void onSaveInstanceState(Bundle state) { web.saveState(state); super.onSaveInstanceState(state); }
     @Override public void onBackPressed() { if (web != null && web.canGoBack()) web.goBack(); else super.onBackPressed(); }
     @Override protected void onDestroy() {
-        destroyed = true; coordinator.removeListener(statusListener); replyProxy = null;
+        destroyed = true; coordinator.removeListener(statusListener); replyProxy = null; phoneReplyProxy = null; pendingPhoneAction = null; pendingPhonePermission = null; pendingPhonePermissionProxy = null;
+        if (phoneCalls != null) phoneCalls.close();
         if (updater != null) updater.close();
         if (downloads != null) downloads.close();
         if (printing != null) printing.close();
