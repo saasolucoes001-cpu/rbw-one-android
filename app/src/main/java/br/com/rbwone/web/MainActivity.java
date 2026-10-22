@@ -188,7 +188,8 @@ public final class MainActivity extends Activity {
         if (request.action.equals("requestPermission")) {
             if (!resumed) { replyPhone(request, proxy, false); return; }
             // The web UI calls this after a gesture. Permission replies never wait for Firebase registration.
-            if (coordinator.permissionGranted()) { replyPhone(request, proxy, true); return; }
+            // Android's per-channel block is independent of the app-wide permission. Respect the user's setting.
+            if (!phoneCalls.channelEnabled() || coordinator.permissionGranted()) { replyPhone(request, proxy, true); return; }
             if (pendingPhonePermission != null) { replyPhone(request, proxy, false); return; }
             pendingPhonePermission = request; pendingPhonePermissionProxy = proxy;
             requestNotifications();

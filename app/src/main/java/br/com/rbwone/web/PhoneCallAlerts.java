@@ -42,13 +42,21 @@ public final class PhoneCallAlerts {
         }
     }
     private long now() { return SystemClock.elapsedRealtime(); }
+    public boolean channelEnabled() {
+        if (Build.VERSION.SDK_INT < 26) return true;
+        NotificationManager manager = context.getSystemService(NotificationManager.class);
+        NotificationChannel channel = manager == null ? null : manager.getNotificationChannel(CHANNEL);
+        return channel != null && channel.getImportance() != NotificationManager.IMPORTANCE_NONE;
+    }
     private boolean permissionGranted() {
         return (Build.VERSION.SDK_INT < 33 || ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
-                && NotificationManagerCompat.from(context).areNotificationsEnabled();
+                && NotificationManagerCompat.from(context).areNotificationsEnabled() && channelEnabled();
     }
     public JSONObject status(String permission) throws Exception {
-        return new JSONObject().put("supported", true).put("permission", permission)
-                .put("active", !foreground && state.current(now()) != null && permissionGranted());
+        boolean granted = permissionGranted();
+        String effectivePermission = !channelEnabled() || ("granted".equals(permission) && !granted) ? "denied" : permission;
+        return new JSONObject().put("supported", true).put("permission", effectivePermission)
+                .put("active", !foreground && state.current(now()) != null && granted);
     }
     public void sync(PhoneCallRequest request) { state.sync(request, now()); render(); }
     public void clear(String owner) { state.clear(owner); render(); }
