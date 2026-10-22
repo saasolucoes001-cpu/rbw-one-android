@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
   "packageName": "br.com.rbwone.web",
-  "versionCode": 14,
-  "versionName": "1.0.13",
-  "apkUrl": "https://saasolucoes001-cpu.github.io/rbw-one-android/rbw-one-web-1.0.13.apk",
-  "sha256": "8d7f50a1811f918ca65100227ff722f7abc33481f0f3098930ee1b003d2a79e6",
-  "sizeBytes": 4210474,
+  "versionCode": 15,
+  "versionName": "1.0.14",
+  "apkUrl": "https://saasolucoes001-cpu.github.io/rbw-one-android/rbw-one-web-1.0.14.apk",
+  "sha256": "908ff99be2d497b9806afe65611b759b6232d3f5e711da19da9d8c257625115b",
+  "sizeBytes": 4210481,
   "minSdkVersion": 23,
-  "notice": "Nova instalação com assinatura renovada. Desinstale a versão 1.0.12 ou anterior e entre novamente. Corrige pedidos repetidos de microfone já autorizado e ativação de áudio.",
+  "notice": "Atualização compatível com o RBW One 1.0.13. Use Atualizar para manter os dados e o login; não desinstale nem limpe os dados do aplicativo.",
   "signingGeneration": 2,
   "signingCertificateSha256": "51bdd94625966be272b47ab53f1c797ef66d83cc7784737e9c1f89af1a1b8d08"
 }

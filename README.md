@@ -6,14 +6,29 @@ Canal independente de distribuição de APKs: https://saasolucoes001-cpu.github.
 
 Este repositório também contém o novo aplicativo nativo WebView no diretório `app`, com identificador **`br.com.rbwone.web`**, Firebase Cloud Messaging e som do RBW One. Consulte [ANDROID.md](ANDROID.md) para compilar, configurar Firebase e guardar a assinatura. O novo pacote é instalado em paralelo: não atualiza nem substitui os aplicativos distribuídos abaixo. Os arquivos históricos de distribuição permanecem preservados.
 
-O botão atual do RBW One usa [download.html](download.html), que consulta [web-v2-latest.json](web-v2-latest.json). A nova instalação publicada é **1.0.13, código 14**, pacote `br.com.rbwone.web`. A página [inicial](index.html) mantém os downloads anteriores separados. Verifique os metadados e o APK com `node --test scripts/download.test.mjs`.
+O botão atual do RBW One usa [download.html](download.html), que consulta [web-v2-latest.json](web-v2-latest.json). A versão publicada é **1.0.14, código 15**, pacote `br.com.rbwone.web`. A página [inicial](index.html) mantém os downloads anteriores separados. Verifique os metadados e o APK com `node --test scripts/download.test.mjs`.
 
-### Nova assinatura — 1.0.13
+### Atualização 1.0.14 sobre 1.0.13
+
+O APK mantém o pacote e a assinatura geração 2 da 1.0.13. Abra o aplicativo,
+escolha **Atualizar agora** e confirme **Atualizar** no Android. Não desinstale
+nem limpe os dados. Se o Android pedir autorização para instalar por esta origem,
+autorize o RBW One e retorne ao instalador.
+
+O pacote foi compilado da main `efe0009a`, com 71 testes Android, lintRelease e
+assembleRelease aprovados. Assinaturas v1/v2, identidade do pacote e recursos
+Firebase foram conferidos. A atualização instalada e a chamada real ainda precisam
+de homologação. Alertas Atender/Recusar exigem chamada recebida pelo cliente ativo
+e canal de notificações permitido; push Linkus nativo para processo suspenso ou
+encerrado permanece pendente.
+
+### Histórico da assinatura — 1.0.13
 
 Corrige pedidos repetidos de microfone já autorizado e reprodução de áudio na
 WebView. A chave anterior ficou indisponível após a migração do computador.
-Esta versão usa uma nova assinatura: é preciso desinstalar a 1.0.12 ou anterior
-antes de instalar e entrar novamente. A desinstalação remove dados locais.
+Essa versão iniciou uma nova geração de assinatura e não é atualização
+compatível da 1.0.12 ou anterior. Para preservar os dados, mantenha essas versões
+instaladas e peça orientação ao TI antes de migrar.
 O canal antigo `web-latest.json` permanece na 1.0.12 para não oferecer uma
 atualização incompatível; as próximas atualizações da nova instalação usam
 `web-v2-latest.json`, com a nova chave preservada e backup criptografado testado.
