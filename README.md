@@ -70,3 +70,14 @@ O Android comum não permite garantir instalação silenciosa; a confirmação d
 5. Confirmar a publicação do GitHub Pages e o SHA-256 do download público antes de divulgar.
 
 Não substituir um APK já publicado por outro conteúdo com o mesmo nome. Mudanças apenas no site não exigem nova versão do instalador. Preserve os instaladores antigos para recuperação; não use um `versionCode` inferior ao instalado.
+
+## Modo de manutenção compartilhado
+
+O modo de manutenção é controlado no site `gestaoemp`, em **Meu perfil → Modo
+de manutenção**, por usuários Admin. O estado fica no mesmo Supabase do app.
+Como a WebView carrega `https://rbwone.com.br`, ela recebe a mesma tela de
+indisponibilidade após a publicação do frontend, sem novo APK. Usuários comuns
+ficam bloqueados; o login permanece acessível para Admins poderem desativar a
+manutenção. Sessões abertas verificam alterações a cada 15 segundos e ao retornar
+à janela. A manutenção da interface não desliga as integrações e notificações
+nativas em segundo plano. Homologar o fluxo em aparelho físico após publicar.
