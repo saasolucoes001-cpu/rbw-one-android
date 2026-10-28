@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
   "packageName": "br.com.rbwone.web",
-  "versionCode": 15,
-  "versionName": "1.0.14",
-  "apkUrl": "https://saasolucoes001-cpu.github.io/rbw-one-android/rbw-one-web-1.0.14.apk",
-  "sha256": "908ff99be2d497b9806afe65611b759b6232d3f5e711da19da9d8c257625115b",
-  "sizeBytes": 4210481,
+  "versionCode": 17,
+  "versionName": "1.0.15",
+  "apkUrl": "https://saasolucoes001-cpu.github.io/rbw-one-android/rbw-one-web-1.0.15.apk",
+  "sha256": "61d7dd4829c4190b084973c977e464e293d589e217a829a98d44555655138d07",
+  "sizeBytes": 4210474,
   "minSdkVersion": 23,
-  "notice": "Atualização compatível com o RBW One 1.0.13. Use Atualizar para manter os dados e o login; não desinstale nem limpe os dados do aplicativo.",
+  "notice": "Atualização para o servidor Linux do RBW One. Salve e sincronize os documentos antes de atualizar. Use Atualizar para manter dados e login; não desinstale nem limpe os dados do aplicativo. Compatível com assinatura da versão 1.0.13 ou posterior.",
   "signingGeneration": 2,
   "signingCertificateSha256": "51bdd94625966be272b47ab53f1c797ef66d83cc7784737e9c1f89af1a1b8d08"
 }
