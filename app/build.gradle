@@ -14,12 +14,12 @@ android {
         applicationId 'br.com.rbwone.web'
         minSdk 23
         targetSdk 35
-        versionCode 15
-        versionName '1.0.14'
+        versionCode 17
+        versionName '1.0.15'
         buildConfigField 'boolean', 'FIREBASE_CONFIGURED', firebaseConfigured.toString()
-        buildConfigField 'String', 'NOTIFICATIONS_API', '"https://qirmwsqksvraowcnleqw.supabase.co/functions/v1/notifications-api"'
+        buildConfigField 'String', 'NOTIFICATIONS_API', '"https://db.rbwone.com.br/functions/v1/notifications-api"'
         // Public publishable key, identical to the official website. No privileged credential belongs in an APK.
-        buildConfigField 'String', 'PUBLIC_API_KEY', '"sb_publishable_pJc3Fi-ky9fXTOoV3aRAaQ_XzKJZ-r_"'
+        buildConfigField 'String', 'PUBLIC_API_KEY', '"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzkzMDEzMzAxLCJleHAiOjE5NTA2OTMzMDF9.rmM3oheVt2py-1Bn5SUnJw49fAeF9QXd0E6Y_0d1Wtg"'
     }
     buildFeatures { buildConfig true }
     compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17; coreLibraryDesugaringEnabled true }

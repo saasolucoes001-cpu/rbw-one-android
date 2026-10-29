@@ -140,3 +140,18 @@ test('landing page preserves explicit legacy links, fallback anchor and hidden-b
   const source=await readFile(new URL('app/src/main/java/br/com/rbwone/web/UpdateRelease.java',root),'utf8');
   assert.match(source,/web-v2-latest\.json/);
  });
+
+
+test('release source agrees with published version and Linux notification backend', async () => {
+  const gradle = await readFile(new URL('app/build.gradle', root), 'utf8');
+  assert.equal(Number(gradle.match(/versionCode (\d+)/)[1]), release.versionCode);
+  assert.equal(gradle.match(/versionName '([^']+)'/)[1], release.versionName);
+  assert.ok(gradle.includes('https://db.rbwone.com.br/functions/v1/notifications-api'));
+  assert.ok(!gradle.includes('qirmwsqksvraowcnleqw.supabase.co'));
+  const key = gradle.match(/PUBLIC_API_KEY[^\n]+?"([^"']+)"/)[1];
+  const claims = JSON.parse(Buffer.from(key.split('.')[1], 'base64url'));
+  assert.equal(claims.role, 'anon');
+  assert.equal(claims.iss, 'supabase');
+  const store = await readFile(new URL('app/src/main/java/br/com/rbwone/web/SecureSessionStore.java', root), 'utf8');
+  assert.ok(store.includes('getSharedPreferences("rbw_notifications_linux_v1"'));
+});

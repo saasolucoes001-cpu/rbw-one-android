@@ -1,3 +1,16 @@
+# Backend Linux — 1.0.15 / código 17
+
+O canal atual é `web-v2-latest.json`. A API nativa de notificações aponta para
+`https://db.rbwone.com.br/functions/v1/notifications-api`, com a chave pública
+`anon` do backend do contêiner 3. As sessões nativas ficam em
+`rbw_notifications_linux_v1`; as preferências antigas da nuvem são preservadas.
+O pacote e a assinatura geração 2 continuam compatíveis com a 1.0.13 e posteriores.
+
+As fontes foram conciliadas com a pasta de compilação do APK publicado, cujo
+SHA-256 é `61d7dd4829c4190b084973c977e464e293d589e217a829a98d44555655138d07`.
+Esta conciliação não recompila nem substitui o APK e não altera integrações Rubi.
+As seções seguintes são registros históricos das versões anteriores.
+
 # Notificações detalhadas — 1.0.12 / código 13
 
 Mostra o título e o resumo autorizados da central, por exemplo “Nova mensagem no chamado” e “Chamado #42. Há uma nova mensagem ou anexo para você consultar.” Textos maiores podem ser expandidos. Os detalhes vêm de `verify_push`, após validar conta, sessão, instalação e acesso atual; o texto do FCM não é usado. Mantém a checagem de sessão antes de exibir, deduplicação, canais de som e conteúdo privado na tela bloqueada. Depende da migration `android_notification_details`. Backend anterior usa texto genérico como fallback. Validação visual e entrega FCM em aparelho pendentes.

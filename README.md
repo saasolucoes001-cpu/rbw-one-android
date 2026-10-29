@@ -6,7 +6,20 @@ Canal independente de distribuição de APKs: https://saasolucoes001-cpu.github.
 
 Este repositório também contém o novo aplicativo nativo WebView no diretório `app`, com identificador **`br.com.rbwone.web`**, Firebase Cloud Messaging e som do RBW One. Consulte [ANDROID.md](ANDROID.md) para compilar, configurar Firebase e guardar a assinatura. O novo pacote é instalado em paralelo: não atualiza nem substitui os aplicativos distribuídos abaixo. Os arquivos históricos de distribuição permanecem preservados.
 
-O botão atual do RBW One usa [download.html](download.html), que consulta [web-v2-latest.json](web-v2-latest.json). A versão publicada é **1.0.14, código 15**, pacote `br.com.rbwone.web`. A página [inicial](index.html) mantém os downloads anteriores separados. Verifique os metadados e o APK com `node --test scripts/download.test.mjs`.
+O botão atual do RBW One usa [download.html](download.html), que consulta [web-v2-latest.json](web-v2-latest.json). A versão publicada é **1.0.15, código 17**, pacote `br.com.rbwone.web`. A página [inicial](index.html) mantém os downloads anteriores separados. Verifique os metadados e o APK com `node --test scripts/download.test.mjs`.
+
+### Atualização 1.0.15 — backend Linux
+
+A versão publicada usa `https://db.rbwone.com.br/functions/v1/notifications-api`,
+no backend do contêiner 3, e a chave pública `anon` correspondente. O registro
+nativo de notificações usa `rbw_notifications_linux_v1`, preservando as
+preferências criptografadas anteriores da nuvem sem reutilizá-las no Linux.
+
+A `main` foi alinhada com as fontes da compilação cujo APK corresponde ao SHA-256
+registrado em `web-v2-latest.json`. O APK publicado não foi substituído. A versão
+mantém o pacote `br.com.rbwone.web` e a assinatura geração 2; atualize sobre a
+1.0.13 ou posterior, sem desinstalar nem limpar dados. A conferência de fontes e
+integridade não substitui a homologação de notificações em aparelho físico.
 
 ### Atualização 1.0.14 sobre 1.0.13
 

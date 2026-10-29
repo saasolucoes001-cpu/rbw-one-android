@@ -1,10 +1,10 @@
 name: Android download checks
 on:
   pull_request:
-    paths: ['download.html', 'index.html', '*latest.json', '*.apk', 'scripts/download.test.mjs', '.github/workflows/android-download.yml']
+    paths: ['app/build.gradle', 'app/src/main/java/br/com/rbwone/web/SecureSessionStore.java', 'download.html', 'index.html', '*latest.json', '*.apk', 'scripts/download.test.mjs', '.github/workflows/android-download.yml']
   push:
     branches: [main]
-    paths: ['download.html', 'index.html', '*latest.json', '*.apk', 'scripts/download.test.mjs', '.github/workflows/android-download.yml']
+    paths: ['app/build.gradle', 'app/src/main/java/br/com/rbwone/web/SecureSessionStore.java', 'download.html', 'index.html', '*latest.json', '*.apk', 'scripts/download.test.mjs', '.github/workflows/android-download.yml']
 permissions:
   contents: read
 jobs:

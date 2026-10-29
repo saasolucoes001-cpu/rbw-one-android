@@ -18,7 +18,8 @@ import javax.crypto.spec.GCMParameterSpec;
 public final class SecureSessionStore {
     private static final String ALIAS = "rbw.notifications.session.v1";
     private final SharedPreferences preferences;
-    public SecureSessionStore(Context context) { preferences = context.getSharedPreferences("rbw_notifications", Context.MODE_PRIVATE); }
+    // Keep the previous encrypted cloud session untouched; Linux registration is separate.
+    public SecureSessionStore(Context context) { preferences = context.getSharedPreferences("rbw_notifications_linux_v1", Context.MODE_PRIVATE); }
     private SecretKey key() throws Exception {
         KeyStore store = KeyStore.getInstance("AndroidKeyStore"); store.load(null);
         if (store.containsAlias(ALIAS)) return (SecretKey) store.getKey(ALIAS, null);
